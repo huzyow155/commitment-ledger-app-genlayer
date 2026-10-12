@@ -31,6 +31,10 @@ This repository contains the front-end dApp:
 
 Captured directly from the Vercel production deployment ([https://commitment-ledger-app-genlayer.vercel.app](https://commitment-ledger-app-genlayer.vercel.app)):
 
+| Header & Brand Mark (Closed Menu) | Fullscreen Menu Drawer (Open) | Browser Tab & Vector Favicon |
+| :---: | :---: | :---: |
+| ![Header Closed](docs/screens/header_closed.png) | ![Menu Drawer Open](docs/screens/menu_drawer_open.png) | ![Browser Tab Favicon](docs/screens/browser_tab_favicon.png) |
+
 | Hero Serif Intro (Mid-Reveal) | Landing Overview (Settled) | Editorial Section (Architecture) |
 | :---: | :---: | :---: |
 | ![Landing Hero Mid-Reveal](docs/screens/landing_hero_mid_reveal.png) | ![Landing Top](docs/screens/landing_top.png) | ![Editorial Section](docs/screens/editorial_section.png) |
@@ -42,6 +46,8 @@ Captured directly from the Vercel production deployment ([https://commitment-led
 | Reference Examples Inspector | Mobile Landing (390px) | Mobile Workbench (390px) |
 | :---: | :---: | :---: |
 | ![App Examples](docs/screens/app_examples.png) | ![Mobile Landing](docs/screens/mobile_landing.png) | ![Mobile App](docs/screens/mobile_app.png) |
+
+**Standalone Project Logo (for Portal submission)**: [`docs/logo/commitmentledger-logo.png`](docs/logo/commitmentledger-logo.png) (`1024x1024` transparent PNG) and [`public/logo.svg`](public/logo.svg) / [`public/logo-wordmark.svg`](public/logo-wordmark.svg).
 
 ---
 
@@ -165,7 +171,15 @@ commitment-ledger-app-genlayer/
 │   ├── ARCHITECTURE.md           # Consensus integration & frontend architecture
 │   ├── TESTING.md                # Comprehensive test plan & audit checklist
 │   ├── E2E_EVIDENCE.json         # Raw on-chain execution trace on Studionet
+│   ├── logo/
+│   │   └── commitmentledger-logo.png # Standalone 1024x1024 transparent PNG logo for Portal submission
 │   └── screens/                  # Production screenshots from Vercel deployment
+├── public/
+│   ├── logo.svg                  # Master standalone vector mark
+│   ├── logo-wordmark.svg         # Mark + CommitmentLedger v2.2 lockup
+│   ├── favicon.svg               # Vector favicon
+│   ├── favicon-32x32.png         # 32x32 PNG favicon
+│   └── apple-touch-icon.png      # 180x180 Apple touch icon
 ├── scripts/
 │   ├── check_address_consistency.mjs # Verifies contract address across codebase
 │   ├── run_e2e.mjs               # On-chain test suite on GenLayer Studionet
