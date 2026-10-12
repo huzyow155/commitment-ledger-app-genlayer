@@ -590,12 +590,13 @@ export const Workbench: React.FC = () => {
             {activeTab === "lookup" && (
               <div className="space-y-8">
                 {/* Lookup Input Box */}
-                <div className="workbench-surface p-7 sm:p-9 reveal-on-scroll" style={{ "--stagger": 0 } as React.CSSProperties}>
+                <div className="workbench-surface p-7 sm:p-9">
                   <h2 className="font-serif text-2xl font-semibold text-[#0a0a0a]">
                     Read Commitment by ID
                   </h2>
                   <form onSubmit={handleLookup} className="mt-5 flex flex-col gap-3 sm:flex-row">
                     <input
+                      id="lookupId"
                       type="text"
                       value={lookupId}
                       onChange={(e) => setLookupId(e.target.value)}
@@ -644,7 +645,7 @@ export const Workbench: React.FC = () => {
                 </div>
 
                 {/* My Commitments List */}
-                <div className="workbench-surface p-7 sm:p-9 reveal-on-scroll" style={{ "--stagger": 1 } as React.CSSProperties}>
+                <div className="workbench-surface p-7 sm:p-9">
                   <div className="flex items-center justify-between border-b border-black/10 pb-5">
                     <div>
                       <h3 className="font-serif text-xl font-semibold text-[#0a0a0a]">

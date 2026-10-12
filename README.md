@@ -31,13 +31,17 @@ This repository contains the front-end dApp:
 
 Captured directly from the Vercel production deployment ([https://commitment-ledger-app-genlayer.vercel.app](https://commitment-ledger-app-genlayer.vercel.app)):
 
-| Landing Overview | How Consensus Works | Verified Studionet Evidence |
+| Hero Serif Intro (Mid-Reveal) | Landing Overview (Settled) | Editorial Section (Architecture) |
 | :---: | :---: | :---: |
-| ![Landing Top](docs/screens/landing_top.png) | ![How It Works](docs/screens/how_it_works.png) | ![Evidence](docs/screens/evidence.png) |
+| ![Landing Hero Mid-Reveal](docs/screens/landing_hero_mid_reveal.png) | ![Landing Top](docs/screens/landing_top.png) | ![Editorial Section](docs/screens/editorial_section.png) |
 
-| Register Form & Client Validation | Reference Examples Inspector | Mobile Viewport (390px) |
+| Ocean Section (How Consensus Works) | Ocean Section (Verified Studionet Evidence) | Register Form & Client Validation |
 | :---: | :---: | :---: |
-| ![App Register](docs/screens/app_register.png) | ![App Examples](docs/screens/app_examples.png) | ![Mobile App](docs/screens/mobile_app.png) |
+| ![How It Works](docs/screens/how_it_works.png) | ![Evidence](docs/screens/evidence.png) | ![App Register](docs/screens/app_register.png) |
+
+| Reference Examples Inspector | Mobile Landing (390px) | Mobile Workbench (390px) |
+| :---: | :---: | :---: |
+| ![App Examples](docs/screens/app_examples.png) | ![Mobile Landing](docs/screens/mobile_landing.png) | ![Mobile App](docs/screens/mobile_app.png) |
 
 ---
 
