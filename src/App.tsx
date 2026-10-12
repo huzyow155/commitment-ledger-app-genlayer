@@ -9,15 +9,13 @@ export const App: React.FC = () => {
   return (
     <WalletProvider>
       <BrowserRouter>
-        <div className="min-h-screen bg-[#FCFAF8] text-[#141413] flex flex-col font-sans">
+        <main className="site-shell">
           <Header />
-          <main className="flex-1">
-            <Routes>
-              <Route path="/" element={<Landing />} />
-              <Route path="/app" element={<Workbench />} />
-            </Routes>
-          </main>
-        </div>
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/app" element={<Workbench />} />
+          </Routes>
+        </main>
       </BrowserRouter>
     </WalletProvider>
   );
