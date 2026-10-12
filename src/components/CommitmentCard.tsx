@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Check, Copy, ExternalLink, ShieldCheck, Quote, Clock, User } from "lucide-react";
+import { Check, Copy, ExternalLink, ShieldCheck, Quote, Clock, User, ArrowUpRight } from "lucide-react";
 import type { CommitmentRecord } from "../lib/outcome";
 import { getExplorerAddressUrl, getExplorerTxUrl } from "../config/chain";
 
@@ -26,36 +26,36 @@ export const CommitmentCard: React.FC<CommitmentCardProps> = ({
   const outcome = commitment.outcome;
 
   return (
-    <article className="rounded-xl border border-[#E7E3DC] bg-[#F7F4EF]/50 p-5 md:p-6 shadow-sm transition hover:border-[#141413]/30">
-      {/* Top Bar: ID + Status + Outcome Stamps */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E7E3DC] pb-4">
+    <article className="group relative rounded-2xl border border-[#E8E5DF] bg-white p-6 sm:p-7 shadow-[0_2px_12px_-4px_rgba(20,20,19,0.04)] transition-all duration-300 hover:border-[#D1CDC4] hover:shadow-[0_8px_30px_-8px_rgba(20,20,19,0.08)]">
+      {/* Top Header: ID + Status + Outcome Stamps */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E8E5DF] pb-4">
         <div className="flex items-center gap-2">
-          <span className="font-mono text-xs uppercase tracking-wider text-[#63625E]">ID</span>
-          <span className="font-mono text-sm font-semibold text-[#141413]">
+          <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-[#6B6A65]">ID</span>
+          <span className="font-mono text-sm font-medium tracking-tight text-[#0E0E0D]">
             {commitment.commitment_id}
           </span>
           <button
             type="button"
             onClick={copyId}
-            className="inline-flex items-center rounded p-1 text-[#63625E] hover:bg-[#E7E3DC] hover:text-[#141413]"
+            className="inline-flex items-center rounded-full p-1 text-[#6B6A65] transition hover:bg-[#F7F4EF] hover:text-[#0E0E0D]"
             title="Copy Commitment ID"
           >
-            {copiedId ? <Check size={14} className="text-emerald-700" /> : <Copy size={14} />}
+            {copiedId ? <Check size={13} className="text-emerald-700" /> : <Copy size={13} />}
           </button>
         </div>
 
         <div className="flex items-center gap-2">
           {/* Status Badge */}
           <span
-            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider ${
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wider ${
               isResolved
-                ? "bg-[#141413] text-white"
-                : "border border-amber-600/40 bg-amber-500/10 text-amber-900"
+                ? "bg-[#0E0E0D] text-white"
+                : "border border-amber-300/80 bg-amber-50 text-amber-900"
             }`}
           >
             <span
               className={`h-1.5 w-1.5 rounded-full ${
-                isResolved ? "bg-emerald-400" : "bg-amber-500 animate-pulse"
+                isResolved ? "bg-emerald-400" : "bg-amber-600 animate-pulse"
               }`}
             />
             {commitment.status}
@@ -64,14 +64,14 @@ export const CommitmentCard: React.FC<CommitmentCardProps> = ({
           {/* Outcome Stamp */}
           {isResolved && outcome && (
             <span
-              className={`inline-flex items-center rounded border px-2.5 py-0.5 font-mono text-xs font-bold uppercase tracking-wider ${
+              className={`inline-flex items-center rounded-full border px-3 py-0.5 font-mono text-[11px] font-semibold uppercase tracking-wider ${
                 outcome === "KEPT"
-                  ? "border-emerald-700 bg-emerald-50 text-emerald-800"
+                  ? "border-emerald-300 bg-emerald-50 text-emerald-800"
                   : outcome === "BROKEN"
-                  ? "border-rose-700 bg-rose-50 text-rose-800"
+                  ? "border-rose-300 bg-rose-50 text-rose-800"
                   : outcome === "PARTIAL"
-                  ? "border-amber-700 bg-amber-50 text-amber-800"
-                  : "border-gray-500 bg-gray-100 text-gray-700"
+                  ? "border-amber-300 bg-amber-50 text-amber-800"
+                  : "border-gray-300 bg-gray-100 text-gray-700"
               }`}
             >
               ★ {outcome}
@@ -81,47 +81,47 @@ export const CommitmentCard: React.FC<CommitmentCardProps> = ({
       </div>
 
       {/* Raw Commitment Text */}
-      <div className="my-4">
-        <p className="font-serif text-lg leading-relaxed text-[#141413]">
+      <div className="my-5">
+        <p className="font-serif text-lg leading-relaxed text-[#0E0E0D] sm:text-xl">
           &ldquo;{commitment.raw_text}&rdquo;
         </p>
       </div>
 
       {/* Canonical Extraction fields */}
       {(commitment.subject || commitment.action) && (
-        <div className="my-3 grid grid-cols-1 gap-2 rounded-lg border border-[#E7E3DC] bg-white/70 p-3 text-xs md:grid-cols-2">
+        <div className="my-4 grid grid-cols-1 gap-2.5 rounded-xl border border-[#E8E5DF] bg-[#F7F4EF]/70 p-3.5 text-xs md:grid-cols-2">
           <div>
-            <span className="font-semibold text-[#63625E]">CANONICAL SUBJECT:</span>{" "}
-            <span className="font-mono text-[#141413]">{commitment.subject || "—"}</span>
+            <span className="font-semibold uppercase tracking-wider text-[10px] text-[#6B6A65] block mb-0.5">Canonical Subject:</span>
+            <span className="font-mono text-[#0E0E0D] text-xs">{commitment.subject || "—"}</span>
           </div>
           <div>
-            <span className="font-semibold text-[#63625E]">CANONICAL ACTION:</span>{" "}
-            <span className="font-mono text-[#141413]">{commitment.action || "—"}</span>
+            <span className="font-semibold uppercase tracking-wider text-[10px] text-[#6B6A65] block mb-0.5">Canonical Action:</span>
+            <span className="font-mono text-[#0E0E0D] text-xs">{commitment.action || "—"}</span>
           </div>
         </div>
       )}
 
       {/* Verbatim Grounded Quote if Resolved */}
       {commitment.resolution_quote && (
-        <div className="my-4 rounded-lg border-l-4 border-[#9E3A26] bg-[#FCFAF8] p-4">
-          <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#9E3A26]">
-            <Quote size={14} />
+        <div className="my-5 rounded-xl border border-[#E8E5DF] bg-[#FCFAF8] p-4.5 border-l-4 border-l-[#9E3A26]">
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#9E3A26]">
+            <Quote size={13} />
             <span>Grounded Verbatim Quote</span>
           </div>
-          <p className="mt-1.5 font-serif text-sm italic text-[#141413]">
+          <p className="mt-2 font-serif text-sm italic text-[#0E0E0D] leading-relaxed">
             &ldquo;{commitment.resolution_quote}&rdquo;
           </p>
           {commitment.source_url && (
-            <div className="mt-2 text-xs">
-              <span className="text-[#63625E]">Source: </span>
+            <div className="mt-3 flex items-center gap-1.5 text-xs text-[#6B6A65]">
+              <span>Source:</span>
               <a
                 href={commitment.source_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 font-mono text-[#9E3A26] underline hover:text-[#7A2B1C]"
+                className="inline-flex items-center gap-1 font-mono text-[#9E3A26] underline hover:text-[#7A2B1C] truncate max-w-xs sm:max-w-md"
               >
-                {commitment.source_url}
-                <ExternalLink size={12} />
+                <span className="truncate">{commitment.source_url}</span>
+                <ExternalLink size={11} className="shrink-0" />
               </a>
             </div>
           )}
@@ -129,19 +129,19 @@ export const CommitmentCard: React.FC<CommitmentCardProps> = ({
       )}
 
       {/* Meta Footer */}
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-[#E7E3DC] pt-3 text-xs text-[#63625E]">
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[#E8E5DF] pt-4 text-xs text-[#6B6A65]">
         <div className="flex flex-wrap items-center gap-4">
-          <span className="inline-flex items-center gap-1">
-            <Clock size={13} />
+          <span className="inline-flex items-center gap-1.5">
+            <Clock size={13} className="text-[#6B6A65]" />
             <span>Deadline:</span>
-            <strong className="font-mono text-[#141413]">{commitment.deadline_hint}</strong>
+            <strong className="font-mono text-[#0E0E0D] font-medium">{commitment.deadline_hint}</strong>
           </span>
 
-          <span className="inline-flex items-center gap-1">
-            <User size={13} />
+          <span className="inline-flex items-center gap-1.5">
+            <User size={13} className="text-[#6B6A65]" />
             <span>Registrant:</span>
-            <span className="font-mono text-[#141413]">
-              {commitment.registrant.slice(0, 6)}…{commitment.registrant.slice(-4)}
+            <span className="font-mono text-[#0E0E0D]">
+              {commitment.registrant.slice(0, 6)}...{commitment.registrant.slice(-4)}
             </span>
           </span>
         </div>
@@ -150,7 +150,7 @@ export const CommitmentCard: React.FC<CommitmentCardProps> = ({
           <button
             type="button"
             onClick={() => onResolveClick(commitment.commitment_id)}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-[#9E3A26] px-3 py-1.5 font-sans text-xs font-semibold text-white shadow-sm transition hover:bg-[#7A2B1C]"
+            className="inline-flex items-center gap-1.5 rounded-full bg-[#9E3A26] px-4 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-[#7A2B1C] hover:shadow"
           >
             <ShieldCheck size={14} />
             <span>Submit Resolution</span>

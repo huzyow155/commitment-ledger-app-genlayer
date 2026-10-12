@@ -74,75 +74,134 @@ console.log(JSON.parse(recordJson));`;
     setTimeout(() => setCopiedSnippet(false), 2000);
   };
 
-  return (
-    <div className="relative overflow-hidden bg-[#FCFAF8] text-[#141413]">
-      {/* Decorative Ruled Notary Lines */}
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,#E7E3DC_1px,transparent_1px),linear-gradient(to_bottom,#E7E3DC_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-30" />
+  // Ticker items inspired by Alwayzz
+  const tickerServices = [
+    "Public Accountability",
+    "Source-Grounded Resolution",
+    "Multi-Validator Consensus",
+    "Allowlisted Citation",
+    "Verbatim Evidence",
+    "Intelligent Notary",
+  ];
 
+  return (
+    <div className="relative overflow-x-hidden bg-[#FCFAF8] text-[#0E0E0D]">
       {/* SECTION 1: HERO */}
-      <section className="relative px-4 pt-16 pb-20 md:pt-24 md:pb-32 sm:px-6">
-        <div className="mx-auto max-w-5xl text-center">
-          {/* Status Badge */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#E7E3DC] bg-[#F7F4EF] px-3.5 py-1 text-xs font-semibold text-[#141413]">
+      <section className="relative flex flex-col items-center justify-center min-h-[840px] px-4 pt-20 pb-28 md:pt-28 md:pb-36 sm:px-8 overflow-hidden">
+        {/* Atmospheric Background Inspired by Alwayzz */}
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(158,58,38,0.06),transparent_70%)]" />
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_40%,rgba(255,255,255,0.7),rgba(252,250,248,0.3)_45%,rgba(247,244,239,0.7))]" />
+        
+        {/* Ruled ledger motif background grid */}
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,#E8E5DF_1px,transparent_1px),linear-gradient(to_bottom,#E8E5DF_1px,transparent_1px)] bg-[size:4.5rem_4.5rem] [mask-image:radial-gradient(ellipse_65%_55%_at_50%_20%,#000_65%,transparent_100%)] opacity-35" />
+
+        {/* Ambient Pulsing Curved Lines from Alwayzz */}
+        <div className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 z-0 hidden lg:flex" aria-hidden="true">
+          {[...Array(14)].map((_, i) => (
+            <span
+              key={`left-curve-${i}`}
+              className="curve-line rounded-r-full"
+              style={{
+                width: `${50 + i * 14}px`,
+                animationDelay: `${i * 0.22}s`,
+                borderLeft: "0",
+              }}
+            />
+          ))}
+        </div>
+        <div className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 flex flex-col items-end gap-1.5 z-0 hidden lg:flex" aria-hidden="true">
+          {[...Array(14)].map((_, i) => (
+            <span
+              key={`right-curve-${i}`}
+              className="curve-line rounded-l-full"
+              style={{
+                width: `${50 + i * 14}px`,
+                animationDelay: `${i * 0.22}s`,
+                borderRight: "0",
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Hero Content Container */}
+        <div className="relative z-10 mx-auto max-w-4xl text-center flex flex-col items-center">
+          {/* Ticker / Pill Marquee from Alwayzz */}
+          <div className="mask-marquee w-full max-w-[min(90vw,500px)] overflow-hidden mb-6 mx-auto">
+            <div className="animate-marquee flex gap-2">
+              {[...tickerServices, ...tickerServices].map((item, idx) => (
+                <span
+                  key={idx}
+                  className="rounded-full border border-[#E8E5DF] bg-white/90 px-3.5 py-1 text-[11px] font-medium text-[#6B6A65] tracking-tight whitespace-nowrap shadow-[0_1px_2px_rgba(0,0,0,0.03)]"
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Network and Schema Pill */}
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#E8E5DF] bg-[#F7F4EF] px-3.5 py-1 text-xs font-semibold text-[#0E0E0D] mb-5">
             <span className="h-1.5 w-1.5 rounded-full bg-amber-600 animate-pulse" />
             <span>Deployed on {NETWORK_STATUS}</span>
-            <span className="text-[#63625E]">·</span>
+            <span className="text-[#6B6A65]">·</span>
             <span className="font-mono text-[#9E3A26]">Schema {CONTRACT_SCHEMA_VERSION}</span>
           </div>
 
-          <h1 className="mt-8 font-serif text-4xl font-normal tracking-tight text-[#141413] md:text-6xl lg:text-7xl">
-            A public ledger of promises, resolved from cited sources.
+          {/* Editorial Headline with Source Serif 4 italic emphasis */}
+          <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-normal tracking-tight text-[#0E0E0D] leading-[1.05] max-w-3xl">
+            A public ledger of promises, resolved from <span className="italic font-semibold text-[#0E0E0D]">cited sources</span>.
           </h1>
 
-          <p className="mx-auto mt-6 max-w-2xl font-sans text-base text-[#63625E] leading-relaxed md:text-lg">
+          {/* Editorial Subtitle */}
+          <p className="mx-auto mt-6 max-w-2xl font-sans text-base sm:text-lg text-[#6B6A65] leading-relaxed tracking-tight">
             Public commitments are made in the open and quietly renegotiated when deadlines pass.
             CommitmentLedger seals promises on GenLayer and resolves them through multi-validator consensus
             against allowlisted public reference sources with verbatim quoted evidence.
           </p>
 
           {/* Honest Ground Truth Disclaimer Callout */}
-          <div className="mx-auto mt-6 max-w-xl rounded-xl border border-amber-200 bg-amber-50/70 p-3 text-xs text-amber-900 leading-relaxed">
+          <div className="mx-auto mt-6 max-w-xl rounded-2xl border border-amber-200/80 bg-amber-50/70 p-3.5 text-xs text-amber-950 leading-relaxed shadow-sm">
             <strong>Source-grounded verdict, not an oracle of truth:</strong> The contract resolves commitments strictly from cited allowlisted pages with verified verbatim quotes. It evaluates what the source asserts—it does not claim omniscient real-world truth.
           </div>
 
-          {/* Action CTAs */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+          {/* Action CTAs: Pill Buttons inspired by Alwayzz */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3.5 sm:gap-4">
             <Link
               to="/app"
-              className="inline-flex items-center gap-2 rounded-full bg-[#141413] px-7 py-3.5 font-sans text-sm font-semibold text-white shadow-md transition hover:bg-[#333] hover:shadow-lg"
+              className="pill-button-primary text-sm shadow-md"
             >
               <span>Open the app</span>
               <ArrowUpRight size={17} />
             </Link>
             <a
               href="#how-it-works"
-              className="inline-flex items-center gap-2 rounded-full border border-[#E7E3DC] bg-white px-7 py-3.5 font-sans text-sm font-semibold text-[#141413] transition hover:bg-[#F7F4EF]"
+              className="pill-button-secondary text-sm"
             >
               <span>Read how it works</span>
               <ChevronDown size={17} />
             </a>
           </div>
 
-          {/* Animated Hero Commitment Card Demo (Cycles OPEN -> RESOLVED) */}
-          <div className="mx-auto mt-14 max-w-2xl text-left">
-            <div className="overflow-hidden rounded-2xl border border-[#E7E3DC] bg-white p-6 shadow-xl transition-all">
-              <div className="flex items-center justify-between border-b border-[#E7E3DC] pb-4 text-xs font-mono">
+          {/* Interactive Archival Commitment Preview Card (Cycles OPEN -> RESOLVED) */}
+          <div className="w-full mt-14 max-w-2xl text-left">
+            <div className="overflow-hidden rounded-3xl border border-[#E8E5DF] bg-white p-7 shadow-[0_12px_40px_-16px_rgba(20,20,19,0.08)] transition-all">
+              <div className="flex items-center justify-between border-b border-[#E8E5DF] pb-4 text-xs font-mono">
                 <div className="flex items-center gap-2">
-                  <span className="text-[#63625E]">LEDGER ID:</span>
-                  <span className="font-bold text-[#141413]">1fe69a47c557</span>
+                  <span className="text-[#6B6A65] uppercase text-[10px] tracking-wider">LEDGER ID:</span>
+                  <span className="font-semibold text-[#0E0E0D]">1fe69a47c557</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span
-                    className={`rounded-full px-2.5 py-0.5 font-sans font-bold uppercase tracking-wider ${
+                    className={`rounded-full px-3 py-0.5 font-sans font-semibold text-[11px] uppercase tracking-wider ${
                       demoStep === "resolved"
-                        ? "bg-[#141413] text-white"
-                        : "border border-amber-600/40 bg-amber-100 text-amber-900"
+                        ? "bg-[#0E0E0D] text-white"
+                        : "border border-amber-300 bg-amber-50 text-amber-900"
                     }`}
                   >
                     {demoStep === "resolved" ? "RESOLVED" : "OPEN"}
                   </span>
                   {demoStep === "resolved" && (
-                    <span className="rounded border border-emerald-700 bg-emerald-50 px-2 py-0.5 font-bold text-emerald-800">
+                    <span className="rounded-full border border-emerald-300 bg-emerald-50 px-2.5 py-0.5 font-bold text-[11px] text-emerald-800">
                       ★ KEPT
                     </span>
                   )}
@@ -150,75 +209,81 @@ console.log(JSON.parse(recordJson));`;
               </div>
 
               <div className="my-5">
-                <p className="font-serif text-lg leading-relaxed text-[#141413]">
+                <p className="font-serif text-lg leading-relaxed text-[#0E0E0D] sm:text-xl">
                   &ldquo;The United States Apollo 11 mission will land human astronauts on the lunar surface before 1970.&rdquo;
                 </p>
               </div>
 
               {demoStep === "resolving" && (
-                <div className="my-4 rounded-lg border border-blue-200 bg-blue-50 p-3 text-xs text-blue-900 animate-pulse">
-                  Validators fetching Wikipedia (Apollo 11) & running strict_eq consensus cascade…
+                <div className="my-4 rounded-xl border border-blue-200 bg-blue-50/80 p-3.5 text-xs text-blue-900 animate-pulse">
+                  Validators fetching Wikipedia (Apollo 11) & running strict_eq consensus cascade...
                 </div>
               )}
 
               {demoStep === "resolved" && (
-                <div className="my-4 rounded-lg border-l-4 border-[#9E3A26] bg-[#FCFAF8] p-4 text-xs">
-                  <div className="flex items-center gap-1 font-semibold uppercase tracking-wider text-[#9E3A26]">
+                <div className="my-4 rounded-xl border border-[#E8E5DF] border-l-4 border-l-[#9E3A26] bg-[#FCFAF8] p-4 text-xs">
+                  <div className="flex items-center gap-1.5 font-semibold uppercase tracking-wider text-[11px] text-[#9E3A26]">
                     <Quote size={13} />
                     <span>Verbatim Grounded Quote (Verified)</span>
                   </div>
-                  <p className="mt-1 font-serif text-sm italic text-[#141413]">
+                  <p className="mt-1.5 font-serif text-sm italic text-[#0E0E0D] leading-relaxed">
                     &ldquo;Apollo 11 (July 16–24, 1969) was the American spaceflight that first landed humans on the Moon&rdquo;
                   </p>
-                  <div className="mt-2 text-[11px] text-[#63625E]">
+                  <div className="mt-2.5 text-[11px] text-[#6B6A65]">
                     Source: <span className="font-mono text-[#9E3A26]">https://en.wikipedia.org/wiki/Apollo_11</span>
                   </div>
                 </div>
               )}
 
-              <div className="mt-4 flex items-center justify-between border-t border-[#E7E3DC] pt-3 text-xs text-[#63625E]">
-                <span>Deadline: <strong className="font-mono text-[#141413]">1970-01-01</strong></span>
-                <span>Round: <strong className="font-mono text-[#141413]">1</strong></span>
+              <div className="mt-5 flex items-center justify-between border-t border-[#E8E5DF] pt-4 text-xs text-[#6B6A65]">
+                <span>Deadline: <strong className="font-mono text-[#0E0E0D]">1970-01-01</strong></span>
+                <span>Round: <strong className="font-mono text-[#0E0E0D]">1</strong></span>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Progressive Blur Bottom Fade from Alwayzz */}
+        <div
+          className="pointer-events-none absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-b from-transparent via-[#FCFAF8]/40 to-[#FCFAF8] z-10"
+          aria-hidden="true"
+        />
       </section>
 
       {/* SECTION 2: THE PROBLEM */}
-      <section className="border-t border-[#E7E3DC] bg-[#F7F4EF]/60 py-20 px-4 sm:px-6">
-        <div className="mx-auto max-w-4xl">
+      <section className="border-t border-[#E8E5DF] bg-[#F7F4EF]/60 py-24 px-4 sm:px-8">
+        <div className="mx-auto max-w-5xl">
           <div className="text-center">
             <span className="text-xs font-semibold uppercase tracking-wider text-[#9E3A26]">The Problem</span>
-            <h2 className="mt-2 font-serif text-3xl font-normal text-[#141413] md:text-4xl">
+            <h2 className="mt-2 font-serif text-3xl sm:text-5xl font-normal text-[#0E0E0D] tracking-tight">
               Promises are made in public and quietly reinterpreted.
             </h2>
-            <p className="mt-4 text-sm text-[#63625E] leading-relaxed max-w-2xl mx-auto">
+            <p className="mt-4 text-sm sm:text-base text-[#6B6A65] leading-relaxed max-w-2xl mx-auto">
               Whether it is a DAO steward roadmap pledge, an open-source milestone, or a protocol promise, traditional verification fails when words change.
             </p>
           </div>
 
-          <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
-            <div className="rounded-xl border border-[#E7E3DC] bg-white p-6 shadow-sm">
-              <div className="text-xs font-mono font-bold text-[#9E3A26]">01 / PARAPHRASE DODGING</div>
-              <h3 className="mt-2 font-serif text-base font-semibold text-[#141413]">Exact Hashing Breaks</h3>
-              <p className="mt-2 text-xs text-[#63625E] leading-relaxed">
+          <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="notary-surface rounded-2xl p-7">
+              <div className="text-[11px] font-mono font-bold text-[#9E3A26]">01 / PARAPHRASE DODGING</div>
+              <h3 className="mt-2 font-serif text-lg font-semibold text-[#0E0E0D]">Exact Hashing Breaks</h3>
+              <p className="mt-2.5 text-xs text-[#6B6A65] leading-relaxed">
                 Exact string hashes (keccak256) break if a single word or synonym shifts (*&ldquo;In September, the audit finished&rdquo;* vs *&ldquo;Audit before Q4&rdquo;*). Bad actors exploit slight phrasing shifts to dodge accountability.
               </p>
             </div>
 
-            <div className="rounded-xl border border-[#E7E3DC] bg-white p-6 shadow-sm">
-              <div className="text-xs font-mono font-bold text-[#9E3A26]">02 / CALLER CIRCULARITY</div>
-              <h3 className="mt-2 font-serif text-base font-semibold text-[#141413]">Caller-Written Text is Flawed</h3>
-              <p className="mt-2 text-xs text-[#63625E] leading-relaxed">
+            <div className="notary-surface rounded-2xl p-7">
+              <div className="text-[11px] font-mono font-bold text-[#9E3A26]">02 / CALLER CIRCULARITY</div>
+              <h3 className="mt-2 font-serif text-lg font-semibold text-[#0E0E0D]">Caller-Written Text is Flawed</h3>
+              <p className="mt-2.5 text-xs text-[#6B6A65] leading-relaxed">
                 If the contract accepts evidence text written by the caller, a &ldquo;grounded quote&rdquo; only proves the quote is in caller-written text. The registrant can self-certify KEPT with self-authored text.
               </p>
             </div>
 
-            <div className="rounded-xl border border-[#E7E3DC] bg-white p-6 shadow-sm">
-              <div className="text-xs font-mono font-bold text-[#9E3A26]">03 / NAIVE FUZZY MATCHING</div>
-              <h3 className="mt-2 font-serif text-base font-semibold text-[#141413]">Distractor Confusion</h3>
-              <p className="mt-2 text-xs text-[#63625E] leading-relaxed">
+            <div className="notary-surface rounded-2xl p-7">
+              <div className="text-[11px] font-mono font-bold text-[#9E3A26]">03 / NAIVE FUZZY MATCHING</div>
+              <h3 className="mt-2 font-serif text-lg font-semibold text-[#0E0E0D]">Distractor Confusion</h3>
+              <p className="mt-2.5 text-xs text-[#6B6A65] leading-relaxed">
                 Naive fuzzy search conflates superficially similar topics (e.g. launching a preview faucet vs verified contracts). Semantic evaluation must verify both the same subject AND the exact action.
               </p>
             </div>
@@ -227,44 +292,44 @@ console.log(JSON.parse(recordJson));`;
       </section>
 
       {/* SECTION 3: WHAT IT DOES */}
-      <section className="py-20 px-4 sm:px-6">
-        <div className="mx-auto max-w-4xl">
+      <section className="py-24 px-4 sm:px-8">
+        <div className="mx-auto max-w-5xl">
           <div className="text-center">
             <span className="text-xs font-semibold uppercase tracking-wider text-[#9E3A26]">What It Does</span>
-            <h2 className="mt-2 font-serif text-3xl font-normal text-[#141413] md:text-4xl">
+            <h2 className="mt-2 font-serif text-3xl sm:text-5xl font-normal text-[#0E0E0D] tracking-tight">
               An intelligent notary backed by validator consensus.
             </h2>
           </div>
 
-          <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div className="rounded-2xl border border-[#E7E3DC] bg-[#F7F4EF]/40 p-6">
+          <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="rounded-3xl border border-[#E8E5DF] bg-[#F7F4EF]/50 p-8 hover:border-[#D1CDC4] transition">
               <Scale size={24} className="text-[#9E3A26]" />
-              <h3 className="mt-3 font-serif text-lg font-semibold text-[#141413]">Two-Phase Consensus</h3>
-              <p className="mt-2 text-xs text-[#63625E] leading-relaxed">
+              <h3 className="mt-3.5 font-serif text-xl font-semibold text-[#0E0E0D]">Two-Phase Consensus</h3>
+              <p className="mt-2 text-xs sm:text-sm text-[#6B6A65] leading-relaxed">
                 At registration, consensus isolates a normalized canonical predicate (<code>subject</code> and <code>action</code>). At resolution, consensus compares the fetched source against that predicate.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-[#E7E3DC] bg-[#F7F4EF]/40 p-6">
+            <div className="rounded-3xl border border-[#E8E5DF] bg-[#F7F4EF]/50 p-8 hover:border-[#D1CDC4] transition">
               <Shield size={24} className="text-[#9E3A26]" />
-              <h3 className="mt-3 font-serif text-lg font-semibold text-[#141413]">Allowlisted Source Fetch</h3>
-              <p className="mt-2 text-xs text-[#63625E] leading-relaxed">
+              <h3 className="mt-3.5 font-serif text-xl font-semibold text-[#0E0E0D]">Allowlisted Source Fetch</h3>
+              <p className="mt-2 text-xs sm:text-sm text-[#6B6A65] leading-relaxed">
                 No caller supplies raw evidence text. Callers provide an allowlisted public source URL (Wikipedia, Reuters, AP, BBC, NASA, NOAA, ECB). The contract fetches the page text directly through <code>gl.nondet.web.render</code>.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-[#E7E3DC] bg-[#F7F4EF]/40 p-6">
+            <div className="rounded-3xl border border-[#E8E5DF] bg-[#F7F4EF]/50 p-8 hover:border-[#D1CDC4] transition">
               <Quote size={24} className="text-[#9E3A26]" />
-              <h3 className="mt-3 font-serif text-lg font-semibold text-[#141413]">Grounded Verbatim Quotes</h3>
-              <p className="mt-2 text-xs text-[#63625E] leading-relaxed">
+              <h3 className="mt-3.5 font-serif text-xl font-semibold text-[#0E0E0D]">Grounded Verbatim Quotes</h3>
+              <p className="mt-2 text-xs sm:text-sm text-[#6B6A65] leading-relaxed">
                 Every resolved outcome requires an extracted quote that must be at least 12 characters and exist verbatim within the first 6,000 characters of the fetched page.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-[#E7E3DC] bg-[#F7F4EF]/40 p-6">
+            <div className="rounded-3xl border border-[#E8E5DF] bg-[#F7F4EF]/50 p-8 hover:border-[#D1CDC4] transition">
               <Clock size={24} className="text-[#9E3A26]" />
-              <h3 className="mt-3 font-serif text-lg font-semibold text-[#141413]">Deterministic Calendar Deadlines</h3>
-              <p className="mt-2 text-xs text-[#63625E] leading-relaxed">
+              <h3 className="mt-3.5 font-serif text-xl font-semibold text-[#0E0E0D]">Deterministic Calendar Deadlines</h3>
+              <p className="mt-2 text-xs sm:text-sm text-[#6B6A65] leading-relaxed">
                 Mandatory calendar dates in <code>YYYY-MM-DD</code> format. Leap years and calendar limits are verified. The contract uses the deterministic chain clock and strictly refuses resolution before the deadline.
               </p>
             </div>
@@ -272,17 +337,17 @@ console.log(JSON.parse(recordJson));`;
         </div>
       </section>
 
-      {/* SECTION 4: HOW IT WORKS (ANIMATED STEP PIPELINE) */}
-      <section id="how-it-works" className="border-t border-[#E7E3DC] bg-[#F7F4EF]/60 py-20 px-4 sm:px-6">
+      {/* SECTION 4: HOW IT WORKS (STEP PIPELINE) */}
+      <section id="how-it-works" className="border-t border-[#E8E5DF] bg-[#F7F4EF]/60 py-24 px-4 sm:px-8">
         <div className="mx-auto max-w-4xl">
           <div className="text-center">
             <span className="text-xs font-semibold uppercase tracking-wider text-[#9E3A26]">Protocol Mechanics</span>
-            <h2 className="mt-2 font-serif text-3xl font-normal text-[#141413] md:text-4xl">
+            <h2 className="mt-2 font-serif text-3xl sm:text-5xl font-normal text-[#0E0E0D] tracking-tight">
               How It Works: Step-by-Step
             </h2>
           </div>
 
-          <div className="mt-12 space-y-6">
+          <div className="mt-14 space-y-4">
             {[
               {
                 step: "01",
@@ -320,11 +385,11 @@ console.log(JSON.parse(recordJson));`;
                 detail: "Outcome (KEPT, BROKEN, or PARTIAL) is sealed with verbatim quote, resolver address, and timestamp. Reverted calls leave the commitment OPEN.",
               },
             ].map((s) => (
-              <div key={s.step} className="flex gap-4 rounded-xl border border-[#E7E3DC] bg-white p-5 shadow-sm">
-                <span className="font-mono text-sm font-bold text-[#9E3A26]">{s.step}</span>
+              <div key={s.step} className="flex gap-4 rounded-2xl border border-[#E8E5DF] bg-white p-5 sm:p-6 shadow-sm hover:border-[#D1CDC4] transition">
+                <span className="font-mono text-xs sm:text-sm font-bold text-[#9E3A26] shrink-0 pt-0.5">{s.step}</span>
                 <div>
-                  <h3 className="font-serif text-base font-semibold text-[#141413]">{s.title}</h3>
-                  <p className="mt-1 text-xs text-[#63625E] leading-relaxed">{s.detail}</p>
+                  <h3 className="font-serif text-base font-semibold text-[#0E0E0D]">{s.title}</h3>
+                  <p className="mt-1 text-xs sm:text-sm text-[#6B6A65] leading-relaxed">{s.detail}</p>
                 </div>
               </div>
             ))}
@@ -333,21 +398,21 @@ console.log(JSON.parse(recordJson));`;
       </section>
 
       {/* SECTION 5: WHY PARAPHRASE WORKS */}
-      <section className="py-20 px-4 sm:px-6">
+      <section className="py-24 px-4 sm:px-8">
         <div className="mx-auto max-w-4xl">
           <div className="text-center">
             <span className="text-xs font-semibold uppercase tracking-wider text-[#9E3A26]">Semantic Equivalence</span>
-            <h2 className="mt-2 font-serif text-3xl font-normal text-[#141413] md:text-4xl">
+            <h2 className="mt-2 font-serif text-3xl sm:text-5xl font-normal text-[#0E0E0D] tracking-tight">
               Why Paraphrase Verification Works
             </h2>
-            <p className="mt-4 text-sm text-[#63625E] max-w-2xl mx-auto">
+            <p className="mt-4 text-sm sm:text-base text-[#6B6A65] max-w-2xl mx-auto leading-relaxed">
               The same-commitment check is semantic: validators verify that the cited source describes the same subject and action even when sentence structure, synonyms, or dates are phrased differently.
             </p>
           </div>
 
-          <div className="mt-10 rounded-2xl border border-[#E7E3DC] bg-[#F7F4EF] p-6 text-xs text-[#63625E]">
-            <h3 className="font-serif text-base font-semibold text-[#141413]">Distractor Handling Example</h3>
-            <p className="mt-2 leading-relaxed">
+          <div className="mt-12 rounded-3xl border border-[#E8E5DF] bg-[#F7F4EF]/70 p-7 sm:p-8 text-xs sm:text-sm text-[#6B6A65]">
+            <h3 className="font-serif text-base font-semibold text-[#0E0E0D]">Distractor Handling Example</h3>
+            <p className="mt-2.5 leading-relaxed">
               Suppose a commitment states: <em>&ldquo;NASA will verify the James Webb Space Telescope deployment.&rdquo;</em>
               If someone attempts to resolve it using the Wikipedia page for <em>SpaceX Falcon 9</em>, validators evaluate the source as describing a different subject/action and agree on <code>NOMATCH</code>.
               The transaction reverts with <code>&ldquo;source does not match this commitment&rdquo;</code>, leaving the commitment completely unchanged in its <strong>OPEN</strong> state.
@@ -357,24 +422,26 @@ console.log(JSON.parse(recordJson));`;
       </section>
 
       {/* SECTION 6: GUARDRAILS TABLE */}
-      <section className="border-t border-[#E7E3DC] bg-[#F7F4EF]/60 py-20 px-4 sm:px-6">
-        <div className="mx-auto max-w-4xl">
+      <section className="border-t border-[#E8E5DF] bg-[#F7F4EF]/60 py-24 px-4 sm:px-8">
+        <div className="mx-auto max-w-5xl">
           <div className="text-center">
             <span className="text-xs font-semibold uppercase tracking-wider text-[#9E3A26]">Contract Guardrails</span>
-            <h2 className="mt-2 font-serif text-3xl font-normal text-[#141413] md:text-4xl">
+            <h2 className="mt-2 font-serif text-3xl sm:text-5xl font-normal text-[#0E0E0D] tracking-tight">
               Deterministic Pre-Conditions & Revert Map
             </h2>
-            <p className="mt-3 text-xs text-[#63625E]">
+            <p className="mt-3 text-xs sm:text-sm text-[#6B6A65]">
               Every guardrail is enforced on-chain via <code>gl.vm.UserError</code> and mapped to a specific revert reason.
             </p>
           </div>
 
           {/* Allowlist domain chips */}
-          <div className="mt-8 text-center">
-            <span className="text-xs font-semibold text-[#141413]">7 Fixed Allowlisted Domains (subdomains allowed):</span>
-            <div className="mt-2 flex flex-wrap justify-center gap-2">
+          <div className="mt-10 text-center">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#0E0E0D] block mb-3">
+              7 Fixed Allowlisted Domains (subdomains allowed):
+            </span>
+            <div className="flex flex-wrap justify-center gap-2">
               {ALLOWED_DOMAINS.map((dom) => (
-                <span key={dom} className="rounded-md border border-[#E7E3DC] bg-white px-3 py-1 font-mono text-xs text-[#141413]">
+                <span key={dom} className="rounded-full border border-[#E8E5DF] bg-white px-3.5 py-1 font-mono text-xs text-[#0E0E0D] shadow-sm">
                   {dom}
                 </span>
               ))}
@@ -382,50 +449,50 @@ console.log(JSON.parse(recordJson));`;
           </div>
 
           {/* Guardrails table */}
-          <div className="mt-10 overflow-x-auto rounded-xl border border-[#E7E3DC] bg-white shadow-sm">
+          <div className="mt-10 overflow-x-auto rounded-2xl border border-[#E8E5DF] bg-white shadow-sm">
             <table className="w-full text-left text-xs">
-              <thead className="border-b border-[#E7E3DC] bg-[#F7F4EF] text-[#63625E]">
+              <thead className="border-b border-[#E8E5DF] bg-[#F7F4EF] text-[#6B6A65]">
                 <tr>
-                  <th className="p-3 font-semibold">Guardrail Rule</th>
-                  <th className="p-3 font-semibold">Requirement</th>
-                  <th className="p-3 font-semibold">Revert String</th>
+                  <th className="p-3.5 font-semibold">Guardrail Rule</th>
+                  <th className="p-3.5 font-semibold">Requirement</th>
+                  <th className="p-3.5 font-semibold">Revert String</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E7E3DC]">
+              <tbody className="divide-y divide-[#E8E5DF]">
                 <tr>
-                  <td className="p-3 font-medium text-[#141413]">URL Scheme</td>
-                  <td className="p-3 text-[#63625E]">Must be https:// only</td>
-                  <td className="p-3 font-mono text-[#9E3A26]">source_url scheme must be https</td>
+                  <td className="p-3.5 font-medium text-[#0E0E0D]">URL Scheme</td>
+                  <td className="p-3.5 text-[#6B6A65]">Must be https:// only</td>
+                  <td className="p-3.5 font-mono text-[#9E3A26]">source_url scheme must be https</td>
                 </tr>
                 <tr>
-                  <td className="p-3 font-medium text-[#141413]">Domain Allowlist</td>
-                  <td className="p-3 text-[#63625E]">Fixed 7 domains or subdomains</td>
-                  <td className="p-3 font-mono text-[#9E3A26]">source_url domain not in authorized allowlist</td>
+                  <td className="p-3.5 font-medium text-[#0E0E0D]">Domain Allowlist</td>
+                  <td className="p-3.5 text-[#6B6A65]">Fixed 7 domains or subdomains</td>
+                  <td className="p-3.5 font-mono text-[#9E3A26]">source_url domain not in authorized allowlist</td>
                 </tr>
                 <tr>
-                  <td className="p-3 font-medium text-[#141413]">Calendar Deadline</td>
-                  <td className="p-3 text-[#63625E]">Strict YYYY-MM-DD calendar days</td>
-                  <td className="p-3 font-mono text-[#9E3A26]">deadline_hint must be YYYY-MM-DD</td>
+                  <td className="p-3.5 font-medium text-[#0E0E0D]">Calendar Deadline</td>
+                  <td className="p-3.5 text-[#6B6A65]">Strict YYYY-MM-DD calendar days</td>
+                  <td className="p-3.5 font-mono text-[#9E3A26]">deadline_hint must be YYYY-MM-DD</td>
                 </tr>
                 <tr>
-                  <td className="p-3 font-medium text-[#141413]">Timing Guard</td>
-                  <td className="p-3 text-[#63625E]">current_date &gt;= deadline_hint</td>
-                  <td className="p-3 font-mono text-[#9E3A26]">cannot resolve before deadline date</td>
+                  <td className="p-3.5 font-medium text-[#0E0E0D]">Timing Guard</td>
+                  <td className="p-3.5 text-[#6B6A65]">current_date &gt;= deadline_hint</td>
+                  <td className="p-3.5 font-mono text-[#9E3A26]">cannot resolve before deadline date</td>
                 </tr>
                 <tr>
-                  <td className="p-3 font-medium text-[#141413]">Quote Length & Verbatim</td>
-                  <td className="p-3 text-[#63625E]">&gt;= 12 chars verbatim in first 6,000 chars</td>
-                  <td className="p-3 font-mono text-[#9E3A26]">no grounded quote in source</td>
+                  <td className="p-3.5 font-medium text-[#0E0E0D]">Quote Length & Verbatim</td>
+                  <td className="p-3.5 text-[#6B6A65]">&gt;= 12 chars verbatim in first 6,000 chars</td>
+                  <td className="p-3.5 font-mono text-[#9E3A26]">no grounded quote in source</td>
                 </tr>
                 <tr>
-                  <td className="p-3 font-medium text-[#141413]">Outcome Classification</td>
-                  <td className="p-3 text-[#63625E]">Must be KEPT, BROKEN, or PARTIAL</td>
-                  <td className="p-3 font-mono text-[#9E3A26]">model returned no valid outcome</td>
+                  <td className="p-3.5 font-medium text-[#0E0E0D]">Outcome Classification</td>
+                  <td className="p-3.5 text-[#6B6A65]">Must be KEPT, BROKEN, or PARTIAL</td>
+                  <td className="p-3.5 font-mono text-[#9E3A26]">model returned no valid outcome</td>
                 </tr>
                 <tr>
-                  <td className="p-3 font-medium text-[#141413]">Single Resolution</td>
-                  <td className="p-3 text-[#63625E]">Status must be OPEN</td>
-                  <td className="p-3 font-mono text-[#9E3A26]">commitment already resolved</td>
+                  <td className="p-3.5 font-medium text-[#0E0E0D]">Single Resolution</td>
+                  <td className="p-3.5 text-[#6B6A65]">Status must be OPEN</td>
+                  <td className="p-3.5 font-mono text-[#9E3A26]">commitment already resolved</td>
                 </tr>
               </tbody>
             </table>
@@ -434,17 +501,17 @@ console.log(JSON.parse(recordJson));`;
       </section>
 
       {/* SECTION 7: OUTCOMES EXPLAINED */}
-      <section className="py-20 px-4 sm:px-6">
-        <div className="mx-auto max-w-4xl">
+      <section className="py-24 px-4 sm:px-8">
+        <div className="mx-auto max-w-5xl">
           <div className="text-center">
             <span className="text-xs font-semibold uppercase tracking-wider text-[#9E3A26]">Classification</span>
-            <h2 className="mt-2 font-serif text-3xl font-normal text-[#141413] md:text-4xl">
+            <h2 className="mt-2 font-serif text-3xl sm:text-5xl font-normal text-[#0E0E0D] tracking-tight">
               Outcomes Explained
             </h2>
           </div>
 
-          <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-xl border border-emerald-300 bg-emerald-50/50 p-5">
+          <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-2xl border border-emerald-300/80 bg-emerald-50/50 p-6 shadow-sm">
               <span className="font-mono text-xs font-bold text-emerald-800">★ KEPT</span>
               <h3 className="mt-2 font-serif text-base font-semibold text-emerald-950">Fulfilled</h3>
               <p className="mt-2 text-xs text-emerald-900 leading-relaxed">
@@ -452,7 +519,7 @@ console.log(JSON.parse(recordJson));`;
               </p>
             </div>
 
-            <div className="rounded-xl border border-rose-300 bg-rose-50/50 p-5">
+            <div className="rounded-2xl border border-rose-300/80 bg-rose-50/50 p-6 shadow-sm">
               <span className="font-mono text-xs font-bold text-rose-800">★ BROKEN</span>
               <h3 className="mt-2 font-serif text-base font-semibold text-rose-950">Not Fulfilled</h3>
               <p className="mt-2 text-xs text-rose-900 leading-relaxed">
@@ -460,7 +527,7 @@ console.log(JSON.parse(recordJson));`;
               </p>
             </div>
 
-            <div className="rounded-xl border border-amber-300 bg-amber-50/50 p-5">
+            <div className="rounded-2xl border border-amber-300/80 bg-amber-50/50 p-6 shadow-sm">
               <span className="font-mono text-xs font-bold text-amber-800">★ PARTIAL</span>
               <h3 className="mt-2 font-serif text-base font-semibold text-amber-950">Partial Scope</h3>
               <p className="mt-2 text-xs text-amber-900 leading-relaxed">
@@ -468,10 +535,10 @@ console.log(JSON.parse(recordJson));`;
               </p>
             </div>
 
-            <div className="rounded-xl border border-[#E7E3DC] bg-[#F7F4EF] p-5">
-              <span className="font-mono text-xs font-bold text-[#141413]">○ OPEN</span>
-              <h3 className="mt-2 font-serif text-base font-semibold text-[#141413]">Awaiting Evidence</h3>
-              <p className="mt-2 text-xs text-[#63625E] leading-relaxed">
+            <div className="rounded-2xl border border-[#E8E5DF] bg-[#F7F4EF] p-6 shadow-sm">
+              <span className="font-mono text-xs font-bold text-[#0E0E0D]">○ OPEN</span>
+              <h3 className="mt-2 font-serif text-base font-semibold text-[#0E0E0D]">Awaiting Evidence</h3>
+              <p className="mt-2 text-xs text-[#6B6A65] leading-relaxed">
                 Registered and awaiting resolution. All rejected resolution attempts preserve this state.
               </p>
             </div>
@@ -480,119 +547,119 @@ console.log(JSON.parse(recordJson));`;
       </section>
 
       {/* SECTION 8: EVIDENCE FROM STUDIONET */}
-      <section className="border-t border-[#E7E3DC] bg-[#F7F4EF]/60 py-20 px-4 sm:px-6">
+      <section id="evidence" className="border-t border-[#E8E5DF] bg-[#F7F4EF]/60 py-24 px-4 sm:px-8">
         <div className="mx-auto max-w-5xl">
           <div className="text-center">
             <span className="text-xs font-semibold uppercase tracking-wider text-[#9E3A26]">On-Chain Record</span>
-            <h2 className="mt-2 font-serif text-3xl font-normal text-[#141413] md:text-4xl">
+            <h2 className="mt-2 font-serif text-3xl sm:text-5xl font-normal text-[#0E0E0D] tracking-tight">
               Verified Studionet Evidence
             </h2>
-            <p className="mt-3 text-xs text-[#63625E]">
-              Executed on GenLayer Studionet with contract <code>{CONTRACT_ADDRESS}</code>. Full 66-character hashes linked directly to the explorer.
+            <p className="mt-3 text-xs sm:text-sm text-[#6B6A65]">
+              Executed on GenLayer Studionet with contract <code className="font-mono text-xs text-[#0E0E0D]">{CONTRACT_ADDRESS}</code>. Full 66-character hashes linked directly to the explorer.
             </p>
           </div>
 
           {/* Cases Table */}
-          <div className="mt-10 overflow-x-auto rounded-xl border border-[#E7E3DC] bg-white shadow-sm">
+          <div className="mt-12 overflow-x-auto rounded-2xl border border-[#E8E5DF] bg-white shadow-sm">
             <table className="w-full text-left text-xs">
-              <thead className="border-b border-[#E7E3DC] bg-[#F7F4EF] text-[#63625E]">
+              <thead className="border-b border-[#E8E5DF] bg-[#F7F4EF] text-[#6B6A65]">
                 <tr>
-                  <th className="p-3 font-semibold">Case</th>
-                  <th className="p-3 font-semibold">Commitment ID</th>
-                  <th className="p-3 font-semibold">Outcome / State</th>
-                  <th className="p-3 font-semibold">Register Tx</th>
-                  <th className="p-3 font-semibold">Resolve Tx</th>
-                  <th className="p-3 font-semibold">Source</th>
+                  <th className="p-3.5 font-semibold">Case</th>
+                  <th className="p-3.5 font-semibold">Commitment ID</th>
+                  <th className="p-3.5 font-semibold">Outcome / State</th>
+                  <th className="p-3.5 font-semibold">Register Tx</th>
+                  <th className="p-3.5 font-semibold">Resolve Tx</th>
+                  <th className="p-3.5 font-semibold">Source</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E7E3DC]">
+              <tbody className="divide-y divide-[#E8E5DF]">
                 <tr>
-                  <td className="p-3 font-medium text-[#141413]">Case A (Paraphrased)</td>
-                  <td className="p-3 font-mono">1fe69a47c557</td>
-                  <td className="p-3"><span className="rounded bg-emerald-100 px-2 py-0.5 font-bold text-emerald-800">KEPT</span></td>
-                  <td className="p-3">
+                  <td className="p-3.5 font-medium text-[#0E0E0D]">Case A (Paraphrased)</td>
+                  <td className="p-3.5 font-mono">1fe69a47c557</td>
+                  <td className="p-3.5"><span className="rounded-full bg-emerald-100 px-2.5 py-0.5 font-bold text-emerald-800">KEPT</span></td>
+                  <td className="p-3.5">
                     <a
                       href={getExplorerTxUrl("0xd61b234967a1011ec915b56afeae573fb4bd54192f5ad1358fd82a90d1737abd")}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="font-mono text-[#9E3A26] hover:underline"
                     >
-                      0xd61b23…7abd
+                      0xd61b23...7abd
                     </a>
                   </td>
-                  <td className="p-3">
+                  <td className="p-3.5">
                     <a
                       href={getExplorerTxUrl("0x54b64f75cd22ef47ac2adecc71ee1e37dd95869c75ea7a274a7c6424e8b715c5")}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="font-mono text-[#9E3A26] hover:underline"
                     >
-                      0x54b64f…15c5
+                      0x54b64f...15c5
                     </a>
                   </td>
-                  <td className="p-3 text-[#63625E]">en.wikipedia.org/wiki/Apollo_11</td>
+                  <td className="p-3.5 text-[#6B6A65]">en.wikipedia.org/wiki/Apollo_11</td>
                 </tr>
 
                 <tr>
-                  <td className="p-3 font-medium text-[#141413]">Case B (Grounded Quote)</td>
-                  <td className="p-3 font-mono">605aa94797d3</td>
-                  <td className="p-3"><span className="rounded bg-rose-100 px-2 py-0.5 font-bold text-rose-800">BROKEN</span></td>
-                  <td className="p-3">
+                  <td className="p-3.5 font-medium text-[#0E0E0D]">Case B (Grounded Quote)</td>
+                  <td className="p-3.5 font-mono">605aa94797d3</td>
+                  <td className="p-3.5"><span className="rounded-full bg-rose-100 px-2.5 py-0.5 font-bold text-rose-800">BROKEN</span></td>
+                  <td className="p-3.5">
                     <a
                       href={getExplorerTxUrl("0xae2cd4b15272a53eaf11d6d3fb9fc5200610ddf170c494672f81c42cd7333823")}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="font-mono text-[#9E3A26] hover:underline"
                     >
-                      0xae2cd4…3823
+                      0xae2cd4...3823
                     </a>
                   </td>
-                  <td className="p-3">
+                  <td className="p-3.5">
                     <a
                       href={getExplorerTxUrl("0xf04a899cfb85a62e958a7e378b063026f21811726c8f8a612c7fbf080a85e943")}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="font-mono text-[#9E3A26] hover:underline"
                     >
-                      0xf04a89…e943
+                      0xf04a89...e943
                     </a>
                   </td>
-                  <td className="p-3 text-[#63625E]">en.wikipedia.org/wiki/Apollo_13</td>
+                  <td className="p-3.5 text-[#6B6A65]">en.wikipedia.org/wiki/Apollo_13</td>
                 </tr>
 
                 <tr>
-                  <td className="p-3 font-medium text-[#141413]">Case C (Distractor Rejection)</td>
-                  <td className="p-3 font-mono">4efe7cbd0772</td>
-                  <td className="p-3"><span className="rounded bg-amber-100 px-2 py-0.5 font-bold text-amber-900">REVERT (OPEN)</span></td>
-                  <td className="p-3">
+                  <td className="p-3.5 font-medium text-[#0E0E0D]">Case C (Distractor Rejection)</td>
+                  <td className="p-3.5 font-mono">4efe7cbd0772</td>
+                  <td className="p-3.5"><span className="rounded-full bg-amber-100 px-2.5 py-0.5 font-bold text-amber-900">REVERT (OPEN)</span></td>
+                  <td className="p-3.5">
                     <a
                       href={getExplorerTxUrl("0x588c25fb25bbb86c235943ae06a9dcfd7523238e1d177be731bad1244c7baec2")}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="font-mono text-[#9E3A26] hover:underline"
                     >
-                      0x588c25…aec2
+                      0x588c25...aec2
                     </a>
                   </td>
-                  <td className="p-3">
+                  <td className="p-3.5">
                     <a
                       href={getExplorerTxUrl("0x7dda2fcd83a02ce8d34fc451d3ff5bff18129ea078cc4a1d31776e1f73b74a59")}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="font-mono text-[#9E3A26] hover:underline"
                     >
-                      0x7dda2f…4a59
+                      0x7dda2f...4a59
                     </a>
                   </td>
-                  <td className="p-3 text-[#63625E]">en.wikipedia.org/wiki/Falcon_9</td>
+                  <td className="p-3.5 text-[#6B6A65]">en.wikipedia.org/wiki/Falcon_9</td>
                 </tr>
               </tbody>
             </table>
           </div>
 
           {/* Negative Rejection Tests */}
-          <div className="mt-8 rounded-xl border border-[#E7E3DC] bg-white p-5 shadow-sm">
-            <h3 className="font-serif text-sm font-semibold text-[#141413]">
+          <div className="mt-8 rounded-2xl border border-[#E8E5DF] bg-white p-6 shadow-sm">
+            <h3 className="font-serif text-sm font-semibold text-[#0E0E0D]">
               5 On-Chain Negative Rejection Tests (Decoded from Leader Receipts)
             </h3>
             <div className="mt-4 space-y-2 text-xs">
@@ -623,18 +690,18 @@ console.log(JSON.parse(recordJson));`;
                   revert: "commitment already resolved",
                 },
               ].map((test) => (
-                <div key={test.hash} className="flex flex-wrap items-center justify-between gap-2 rounded bg-[#F7F4EF] p-2.5">
+                <div key={test.hash} className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-[#F7F4EF] p-3 border border-[#E8E5DF]">
                   <div>
-                    <span className="font-medium text-[#141413]">{test.label}: </span>
+                    <span className="font-medium text-[#0E0E0D]">{test.label}: </span>
                     <span className="font-mono text-[#9E3A26]">&ldquo;{test.revert}&rdquo;</span>
                   </div>
                   <a
                     href={getExplorerTxUrl(test.hash)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-mono text-xs text-[#63625E] hover:text-[#141413]"
+                    className="font-mono text-xs text-[#6B6A65] hover:text-[#0E0E0D] hover:underline"
                   >
-                    {test.hash.slice(0, 10)}…{test.hash.slice(-8)}
+                    {test.hash.slice(0, 10)}...{test.hash.slice(-8)}
                   </a>
                 </div>
               ))}
@@ -644,16 +711,16 @@ console.log(JSON.parse(recordJson));`;
       </section>
 
       {/* SECTION 9: HONEST SCOPE BOX */}
-      <section className="py-20 px-4 sm:px-6">
+      <section className="py-24 px-4 sm:px-8">
         <div className="mx-auto max-w-4xl">
-          <div className="rounded-2xl border-2 border-amber-300 bg-amber-50/60 p-6 md:p-8">
-            <div className="flex items-start gap-3">
-              <AlertTriangle size={24} className="shrink-0 text-amber-700" />
+          <div className="rounded-3xl border border-amber-300 bg-amber-50/70 p-7 sm:p-9 shadow-sm">
+            <div className="flex items-start gap-3.5">
+              <AlertTriangle size={24} className="shrink-0 text-amber-700 mt-0.5" />
               <div>
-                <h3 className="font-serif text-lg font-bold text-amber-950">
+                <h3 className="font-serif text-xl font-bold text-amber-950">
                   Honest Scope: On-Chain vs Unit Test Coverage
                 </h3>
-                <div className="mt-3 space-y-2 text-xs text-amber-900 leading-relaxed">
+                <div className="mt-3.5 space-y-2.5 text-xs sm:text-sm text-amber-950/90 leading-relaxed">
                   <p>
                     <strong>Verified on Studionet:</strong> KEPT, BROKEN, source mismatch (distractor rejection), and 5 rejection tests. Full 66-character transactions are recorded and verified.
                   </p>
@@ -674,21 +741,21 @@ console.log(JSON.parse(recordJson));`;
       </section>
 
       {/* SECTION 10: CONTRACT AND VERIFICATION FACTS */}
-      <section className="border-t border-[#E7E3DC] bg-[#F7F4EF]/60 py-20 px-4 sm:px-6">
+      <section className="border-t border-[#E8E5DF] bg-[#F7F4EF]/60 py-24 px-4 sm:px-8">
         <div className="mx-auto max-w-4xl">
           <div className="text-center">
             <span className="text-xs font-semibold uppercase tracking-wider text-[#9E3A26]">Contract Verification</span>
-            <h2 className="mt-2 font-serif text-3xl font-normal text-[#141413] md:text-4xl">
+            <h2 className="mt-2 font-serif text-3xl sm:text-5xl font-normal text-[#0E0E0D] tracking-tight">
               Contract Coordinates & Byte-for-Byte Audit
             </h2>
           </div>
 
-          <div className="mt-10 rounded-2xl border border-[#E7E3DC] bg-white p-6 shadow-sm text-xs space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E7E3DC] pb-3">
-              <span className="text-[#63625E]">Contract Address:</span>
+          <div className="mt-12 rounded-3xl border border-[#E8E5DF] bg-white p-7 sm:p-8 shadow-sm text-xs sm:text-sm space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E8E5DF] pb-3.5">
+              <span className="text-[#6B6A65]">Contract Address:</span>
               <div className="flex items-center gap-2">
-                <span className="font-mono font-bold text-[#141413]">{CONTRACT_ADDRESS}</span>
-                <button type="button" onClick={copyContract} className="text-[#63625E] hover:text-[#141413]">
+                <span className="font-mono font-bold text-[#0E0E0D]">{CONTRACT_ADDRESS}</span>
+                <button type="button" onClick={copyContract} className="text-[#6B6A65] hover:text-[#0E0E0D]">
                   {copiedContract ? <Check size={13} className="text-emerald-700" /> : <Copy size={13} />}
                 </button>
                 <a href={getExplorerAddressUrl(CONTRACT_ADDRESS)} target="_blank" rel="noopener noreferrer" className="text-[#9E3A26]">
@@ -697,27 +764,27 @@ console.log(JSON.parse(recordJson));`;
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E7E3DC] pb-3">
-              <span className="text-[#63625E]">Deploy Transaction:</span>
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E8E5DF] pb-3.5">
+              <span className="text-[#6B6A65]">Deploy Transaction:</span>
               <a href={getExplorerTxUrl(CONTRACT_DEPLOY_TX)} target="_blank" rel="noopener noreferrer" className="font-mono text-[#9E3A26] hover:underline">
                 {CONTRACT_DEPLOY_TX}
               </a>
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E7E3DC] pb-3">
-              <span className="text-[#63625E]">Source Code SHA-256:</span>
-              <span className="font-mono font-bold text-[#141413]">{CONTRACT_SOURCE_SHA256}</span>
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E8E5DF] pb-3.5">
+              <span className="text-[#6B6A65]">Source Code SHA-256:</span>
+              <span className="font-mono font-bold text-[#0E0E0D]">{CONTRACT_SOURCE_SHA256}</span>
             </div>
 
-            <div className="rounded-lg bg-[#F7F4EF] p-4 text-[#63625E] leading-relaxed">
+            <div className="rounded-2xl bg-[#F7F4EF] p-4 text-[#6B6A65] leading-relaxed border border-[#E8E5DF]">
               <strong>Source Verification Method:</strong> The contract source in <code>contracts-reference/CommitmentLedger.py</code> matches the on-chain deployment transaction data byte-for-byte. Verified by querying <code>eth_getTransactionByHash</code>, base64-decoding <code>result.data.contract_code</code>, and asserting SHA-256 equality.
             </div>
 
-            <div className="flex flex-wrap gap-4 pt-2">
-              <a href={CONTRACT_REPO_URL} target="_blank" rel="noopener noreferrer" className="text-[#9E3A26] underline font-medium">
+            <div className="flex flex-wrap gap-5 pt-2">
+              <a href={CONTRACT_REPO_URL} target="_blank" rel="noopener noreferrer" className="text-[#9E3A26] underline font-medium hover:text-[#7A2B1C]">
                 Contract GitHub Repository →
               </a>
-              <a href={APP_REPO_URL} target="_blank" rel="noopener noreferrer" className="text-[#9E3A26] underline font-medium">
+              <a href={APP_REPO_URL} target="_blank" rel="noopener noreferrer" className="text-[#9E3A26] underline font-medium hover:text-[#7A2B1C]">
                 dApp GitHub Repository →
               </a>
             </div>
@@ -726,28 +793,28 @@ console.log(JSON.parse(recordJson));`;
       </section>
 
       {/* SECTION 11: INTEGRATION SNIPPET */}
-      <section className="py-20 px-4 sm:px-6">
+      <section id="integration" className="py-24 px-4 sm:px-8">
         <div className="mx-auto max-w-4xl">
           <div className="text-center">
             <span className="text-xs font-semibold uppercase tracking-wider text-[#9E3A26]">Developers</span>
-            <h2 className="mt-2 font-serif text-3xl font-normal text-[#141413] md:text-4xl">
+            <h2 className="mt-2 font-serif text-3xl sm:text-5xl font-normal text-[#0E0E0D] tracking-tight">
               Integration Code (genlayer-js)
             </h2>
-            <p className="mt-3 text-xs text-[#63625E]">
+            <p className="mt-3 text-xs sm:text-sm text-[#6B6A65]">
               This snippet executes directly against the deployed contract address on Studionet.
             </p>
           </div>
 
-          <div className="relative mt-8 rounded-xl border border-[#141413] bg-[#141413] p-5 text-white shadow-xl">
+          <div className="relative mt-10 rounded-3xl border border-[#0E0E0D] bg-[#0E0E0D] p-6 text-white shadow-2xl">
             <button
               type="button"
               onClick={copySnippet}
-              className="absolute right-4 top-4 inline-flex items-center gap-1 rounded bg-[#333] px-2.5 py-1 text-xs text-white hover:bg-[#444]"
+              className="absolute right-5 top-5 inline-flex items-center gap-1.5 rounded-full bg-[#262624] px-3.5 py-1.5 text-xs text-white hover:bg-[#383835] transition"
             >
               {copiedSnippet ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
               <span>{copiedSnippet ? "Copied" : "Copy"}</span>
             </button>
-            <pre className="overflow-x-auto font-mono text-xs leading-relaxed text-[#FCFAF8]/90">
+            <pre className="overflow-x-auto font-mono text-xs leading-relaxed text-[#FCFAF8]/90 pt-3">
               {integrationSnippet}
             </pre>
           </div>
@@ -755,18 +822,18 @@ console.log(JSON.parse(recordJson));`;
       </section>
 
       {/* SECTION 12: FAQ */}
-      <section className="border-t border-[#E7E3DC] bg-[#F7F4EF]/60 py-20 px-4 sm:px-6">
+      <section className="border-t border-[#E8E5DF] bg-[#F7F4EF]/60 py-24 px-4 sm:px-8">
         <div className="mx-auto max-w-3xl">
           <div className="text-center">
             <span className="text-xs font-semibold uppercase tracking-wider text-[#9E3A26]">Questions & Answers</span>
-            <h2 className="mt-2 font-serif text-3xl font-normal text-[#141413] md:text-4xl">
+            <h2 className="mt-2 font-serif text-3xl sm:text-5xl font-normal text-[#0E0E0D] tracking-tight">
               Frequently Asked Questions
             </h2>
           </div>
 
-          <div className="mt-12 space-y-6 text-xs text-[#63625E]">
-            <div className="rounded-xl border border-[#E7E3DC] bg-white p-5">
-              <h3 className="font-serif text-sm font-semibold text-[#141413]">
+          <div className="mt-14 space-y-5 text-xs sm:text-sm text-[#6B6A65]">
+            <div className="rounded-2xl border border-[#E8E5DF] bg-white p-6 shadow-sm">
+              <h3 className="font-serif text-base font-semibold text-[#0E0E0D]">
                 What if the cited source is inaccurate or biased?
               </h3>
               <p className="mt-2 leading-relaxed">
@@ -774,8 +841,8 @@ console.log(JSON.parse(recordJson));`;
               </p>
             </div>
 
-            <div className="rounded-xl border border-[#E7E3DC] bg-white p-5">
-              <h3 className="font-serif text-sm font-semibold text-[#141413]">
+            <div className="rounded-2xl border border-[#E8E5DF] bg-white p-6 shadow-sm">
+              <h3 className="font-serif text-base font-semibold text-[#0E0E0D]">
                 What happens when validators disagree during resolution?
               </h3>
               <p className="mt-2 leading-relaxed">
@@ -783,8 +850,8 @@ console.log(JSON.parse(recordJson));`;
               </p>
             </div>
 
-            <div className="rounded-xl border border-[#E7E3DC] bg-white p-5">
-              <h3 className="font-serif text-sm font-semibold text-[#141413]">
+            <div className="rounded-2xl border border-[#E8E5DF] bg-white p-6 shadow-sm">
+              <h3 className="font-serif text-base font-semibold text-[#0E0E0D]">
                 Why is the deadline mandatory and formatted as YYYY-MM-DD?
               </h3>
               <p className="mt-2 leading-relaxed">
@@ -792,8 +859,8 @@ console.log(JSON.parse(recordJson));`;
               </p>
             </div>
 
-            <div className="rounded-xl border border-[#E7E3DC] bg-white p-5">
-              <h3 className="font-serif text-sm font-semibold text-[#141413]">
+            <div className="rounded-2xl border border-[#E8E5DF] bg-white p-6 shadow-sm">
+              <h3 className="font-serif text-base font-semibold text-[#0E0E0D]">
                 Why is the domain allowlist fixed at the contract level?
               </h3>
               <p className="mt-2 leading-relaxed">
@@ -801,8 +868,8 @@ console.log(JSON.parse(recordJson));`;
               </p>
             </div>
 
-            <div className="rounded-xl border border-[#E7E3DC] bg-white p-5">
-              <h3 className="font-serif text-sm font-semibold text-[#141413]">
+            <div className="rounded-2xl border border-[#E8E5DF] bg-white p-6 shadow-sm">
+              <h3 className="font-serif text-base font-semibold text-[#0E0E0D]">
                 Can a commitment be resolved twice?
               </h3>
               <p className="mt-2 leading-relaxed">
@@ -810,8 +877,8 @@ console.log(JSON.parse(recordJson));`;
               </p>
             </div>
 
-            <div className="rounded-xl border border-[#E7E3DC] bg-white p-5">
-              <h3 className="font-serif text-sm font-semibold text-[#141413]">
+            <div className="rounded-2xl border border-[#E8E5DF] bg-white p-6 shadow-sm">
+              <h3 className="font-serif text-base font-semibold text-[#0E0E0D]">
                 Who can resolve a commitment?
               </h3>
               <p className="mt-2 leading-relaxed">
@@ -819,8 +886,8 @@ console.log(JSON.parse(recordJson));`;
               </p>
             </div>
 
-            <div className="rounded-xl border border-[#E7E3DC] bg-white p-5">
-              <h3 className="font-serif text-sm font-semibold text-[#141413]">
+            <div className="rounded-2xl border border-[#E8E5DF] bg-white p-6 shadow-sm">
+              <h3 className="font-serif text-base font-semibold text-[#0E0E0D]">
                 Is this financial, legal, or investment advice?
               </h3>
               <p className="mt-2 leading-relaxed">
@@ -832,24 +899,24 @@ console.log(JSON.parse(recordJson));`;
       </section>
 
       {/* SECTION 13: FOOTER */}
-      <footer className="border-t border-[#E7E3DC] py-12 px-4 sm:px-6 text-xs text-[#63625E]">
-        <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 sm:flex-row">
+      <footer className="border-t border-[#E8E5DF] py-14 px-4 sm:px-8 text-xs text-[#6B6A65]">
+        <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-6 sm:flex-row">
           <div className="flex items-center gap-2">
-            <span className="font-serif font-bold text-[#141413]">CommitmentLedger</span>
+            <span className="font-serif text-base font-semibold italic text-[#0E0E0D]">CommitmentLedger</span>
             <span>·</span>
             <span>GenLayer Studionet (Preview)</span>
           </div>
           <div className="flex items-center gap-6">
-            <Link to="/app" className="hover:text-[#141413]">
+            <Link to="/app" className="hover:text-[#0E0E0D] transition">
               Workbench (/app)
             </Link>
-            <a href={CONTRACT_REPO_URL} target="_blank" rel="noopener noreferrer" className="hover:text-[#141413]">
+            <a href={CONTRACT_REPO_URL} target="_blank" rel="noopener noreferrer" className="hover:text-[#0E0E0D] transition">
               Contract Repo
             </a>
-            <a href={APP_REPO_URL} target="_blank" rel="noopener noreferrer" className="hover:text-[#141413]">
+            <a href={APP_REPO_URL} target="_blank" rel="noopener noreferrer" className="hover:text-[#0E0E0D] transition">
               App Repo
             </a>
-            <a href={getExplorerAddressUrl(CONTRACT_ADDRESS)} target="_blank" rel="noopener noreferrer" className="hover:text-[#141413]">
+            <a href={getExplorerAddressUrl(CONTRACT_ADDRESS)} target="_blank" rel="noopener noreferrer" className="hover:text-[#0E0E0D] transition">
               Explorer
             </a>
           </div>

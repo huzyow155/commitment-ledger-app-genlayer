@@ -4,12 +4,18 @@
 
 :root {
   --bg: #FCFAF8;
-  --text: #141413;
-  --muted: #63625E;
-  --line: #E7E3DC;
+  --surface: #FFFFFF;
+  --surface-warm: #F7F4EF;
+  --text: #0E0E0D;
+  --muted: #6B6A65;
+  --line: #E8E5DF;
+  --line-strong: #D1CDC4;
   --accent: #9E3A26;
+  --accent-soft: rgba(158, 58, 38, 0.08);
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-synthesis: none;
   text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 body {
@@ -17,6 +23,113 @@ body {
   min-width: 320px;
   background-color: var(--bg);
   color: var(--text);
+  overflow-x: hidden;
+}
+
+/* Ticker and Marquee Animations from Alwayzz Reference */
+@keyframes marquee-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee-left 32s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Atmospheric curve line pulse from Alwayzz */
+@keyframes line-pulse {
+  0% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  15% {
+    opacity: 0.85;
+  }
+  70% {
+    opacity: 0.35;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+}
+
+.curve-line {
+  animation: line-pulse 5.5s ease-in-out infinite;
+  border: 1.5px solid rgba(209, 205, 196, 0.65);
+  height: 32px;
+  opacity: 0;
+}
+
+/* Progressive blur mask */
+.mask-marquee {
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 12%, #000 88%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 12%, #000 88%, transparent 100%);
+}
+
+/* Subtle luxury card styling */
+.notary-surface {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(247, 244, 239, 0.94) 100%);
+  border: 1px solid var(--line);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 8px 24px -12px rgba(20, 20, 19, 0.05);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.notary-surface:hover {
+  border-color: var(--line-strong);
+  box-shadow: 0 4px 20px -8px rgba(20, 20, 19, 0.08);
+}
+
+/* Refined Pill Button */
+.pill-button-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #0E0E0D;
+  color: #FFFFFF;
+  border-radius: 9999px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  padding: 0.75rem 1.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.pill-button-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px -4px rgba(0, 0, 0, 0.25);
+  background-color: #262624;
+}
+
+.pill-button-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #FFFFFF;
+  color: #0E0E0D;
+  border: 1px solid var(--line-strong);
+  border-radius: 9999px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  padding: 0.75rem 1.5rem;
+  transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.pill-button-secondary:hover {
+  transform: translateY(-1px);
+  background-color: #F7F4EF;
+  border-color: #B5B0A4;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Check, Copy, ExternalLink, RefreshCw, AlertCircle, AlertTriangle } from "lucide-react";
+import { Check, Copy, ExternalLink, RefreshCw, AlertCircle, AlertTriangle, ShieldCheck } from "lucide-react";
 import type { TxStatusReport } from "../services/contractService";
 import { mapRevertReason } from "../lib/revertMap";
 import { getExplorerTxUrl } from "../config/chain";
@@ -38,22 +38,37 @@ export const TxPipelineModal: React.FC<TxPipelineModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm transition-opacity"
       role="dialog"
       aria-modal="true"
       aria-labelledby="tx-pipeline-title"
     >
-      <div className="w-full max-w-lg rounded-2xl border border-[#E7E3DC] bg-[#FCFAF8] p-6 shadow-xl">
-        <h3 id="tx-pipeline-title" className="font-serif text-xl font-semibold text-[#141413]">
-          {title}
-        </h3>
+      <div className="w-full max-w-lg rounded-3xl border border-[#E8E5DF] bg-[#FCFAF8] p-7 shadow-2xl transition-all">
+        <div className="flex items-start justify-between">
+          <div>
+            <span className="font-mono text-[10px] uppercase tracking-wider text-[#9E3A26] font-semibold">
+              Studionet Consensus Pipeline
+            </span>
+            <h3 id="tx-pipeline-title" className="font-serif text-2xl font-semibold text-[#0E0E0D] mt-0.5">
+              {title}
+            </h3>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-full p-1.5 text-[#6B6A65] hover:bg-[#F7F4EF] hover:text-[#0E0E0D]"
+            aria-label="Close modal"
+          >
+            ✕
+          </button>
+        </div>
 
         {/* Pipeline Stage Indicators */}
-        <div className="my-6 space-y-3">
+        <div className="my-6 space-y-3.5">
           {/* Step 1: Signing / Submission */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-start gap-3.5 rounded-xl border border-[#E8E5DF] bg-white p-3.5 shadow-sm">
             <div
-              className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
+              className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
                 stage === "signing"
                   ? "animate-pulse bg-[#9E3A26] text-white"
                   : "bg-emerald-700 text-white"
@@ -61,64 +76,66 @@ export const TxPipelineModal: React.FC<TxPipelineModalProps> = ({
             >
               1
             </div>
-            <div className="text-sm">
-              <span className="font-medium text-[#141413]">Signing & Broadcast</span>
-              {status?.txHash && (
-                <div className="font-mono text-xs text-[#63625E]">
-                  Hash: {status.txHash.slice(0, 10)}…{status.txHash.slice(-8)}
+            <div className="text-xs">
+              <span className="font-semibold text-[#0E0E0D] text-sm block">Signing & Broadcast</span>
+              {status?.txHash ? (
+                <div className="font-mono text-[11px] text-[#6B6A65] mt-0.5">
+                  Hash: {status.txHash.slice(0, 10)}...{status.txHash.slice(-8)}
                 </div>
+              ) : (
+                <span className="text-[#6B6A65] text-xs">Preparing throwaway signature on client</span>
               )}
             </div>
           </div>
 
           {/* Step 2: Validator Consensus */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-start gap-3.5 rounded-xl border border-[#E8E5DF] bg-white p-3.5 shadow-sm">
             <div
-              className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
+              className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
                 stage === "consensus"
                   ? "animate-pulse bg-[#9E3A26] text-white"
                   : stage === "complete" || stage === "reverted" || stage === "undetermined"
                   ? "bg-emerald-700 text-white"
-                  : "bg-[#E7E3DC] text-[#63625E]"
+                  : "bg-[#E8E5DF] text-[#6B6A65]"
               }`}
             >
               2
             </div>
-            <div className="text-sm">
-              <span className="font-medium text-[#141413]">Multi-Validator Consensus</span>
-              <p className="text-xs text-[#63625E]">
+            <div className="text-xs">
+              <span className="font-semibold text-[#0E0E0D] text-sm block">Multi-Validator Consensus</span>
+              <p className="text-xs text-[#6B6A65] mt-0.5 leading-relaxed">
                 {stage === "consensus"
-                  ? "Validators running strict_eq execution across nodes (~15–35s)…"
-                  : `Status: ${status?.statusName || "Waiting"}`}
+                  ? "Validators executing strict_eq evaluation across network nodes (15–35s)..."
+                  : `Status: ${status?.statusName || "Waiting for consensus"}`}
               </p>
             </div>
           </div>
 
           {/* Step 3: Execution Result */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-start gap-3.5 rounded-xl border border-[#E8E5DF] bg-white p-3.5 shadow-sm">
             <div
-              className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
+              className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
                 stage === "complete"
                   ? "bg-emerald-700 text-white"
                   : stage === "reverted"
                   ? "bg-amber-600 text-white"
                   : stage === "undetermined"
                   ? "bg-blue-600 text-white"
-                  : "bg-[#E7E3DC] text-[#63625E]"
+                  : "bg-[#E8E5DF] text-[#6B6A65]"
               }`}
             >
               3
             </div>
-            <div className="text-sm">
-              <span className="font-medium text-[#141413]">Receipt Evaluation</span>
-              <p className="text-xs text-[#63625E]">
+            <div className="text-xs">
+              <span className="font-semibold text-[#0E0E0D] text-sm block">Receipt Evaluation</span>
+              <p className="text-xs text-[#6B6A65] mt-0.5 leading-relaxed">
                 {stage === "complete"
                   ? "Accepted by validators with SUCCESS"
                   : stage === "reverted"
-                  ? "Execution reverted (commitment unchanged)"
+                  ? "Execution reverted (record remains unchanged)"
                   : stage === "undetermined"
-                  ? "Validators did not achieve quorum"
-                  : "Awaiting leader receipt"}
+                  ? "Validators did not achieve quorum (UNDETERMINED)"
+                  : "Awaiting leader receipt and proof confirmation"}
               </p>
             </div>
           </div>
@@ -126,14 +143,14 @@ export const TxPipelineModal: React.FC<TxPipelineModalProps> = ({
 
         {/* Tx Hash Banner with Explorer Link */}
         {status?.txHash && (
-          <div className="rounded-lg border border-[#E7E3DC] bg-[#F7F4EF] p-3 text-xs">
-            <div className="flex items-center justify-between text-[#63625E]">
-              <span>Transaction Hash (66 chars):</span>
-              <div className="flex items-center gap-2">
+          <div className="rounded-2xl border border-[#E8E5DF] bg-[#F7F4EF] p-4 text-xs">
+            <div className="flex items-center justify-between text-[#6B6A65]">
+              <span className="font-medium text-[11px] uppercase tracking-wider">Transaction Hash (66 chars)</span>
+              <div className="flex items-center gap-2.5">
                 <button
                   type="button"
                   onClick={copyTxHash}
-                  className="inline-flex items-center gap-1 hover:text-[#141413]"
+                  className="inline-flex items-center gap-1 hover:text-[#0E0E0D] transition"
                 >
                   {copiedHash ? <Check size={12} className="text-emerald-700" /> : <Copy size={12} />}
                   <span>{copiedHash ? "Copied" : "Copy"}</span>
@@ -149,7 +166,7 @@ export const TxPipelineModal: React.FC<TxPipelineModalProps> = ({
                 </a>
               </div>
             </div>
-            <div className="mt-1 break-all font-mono font-medium text-[#141413]">
+            <div className="mt-1.5 break-all font-mono font-medium text-[#0E0E0D] text-[11px] leading-relaxed">
               {status.txHash}
             </div>
           </div>
@@ -157,68 +174,51 @@ export const TxPipelineModal: React.FC<TxPipelineModalProps> = ({
 
         {/* Revert / Error Message Panel */}
         {stage === "reverted" && revertInfo && (
-          <div className="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-4 text-xs text-amber-900">
-            <div className="flex items-start gap-2">
-              <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-700" />
-              <div>
-                <strong className="font-semibold">{revertInfo.friendlyMessage}</strong>
-                {revertInfo.commitmentStaysOpen && (
-                  <p className="mt-1 text-amber-800">
-                    The commitment stays <strong>OPEN</strong> on-chain. You may retry with a different allowlisted source or adjust your inputs.
-                  </p>
-                )}
-                {/* Disclosure for raw decoded string */}
-                <button
-                  type="button"
-                  onClick={() => setShowRawDetails(!showRawDetails)}
-                  className="mt-2 text-xs text-amber-800 underline hover:text-amber-950"
-                >
-                  {showRawDetails ? "Hide raw revert payload" : "Show raw revert payload"}
-                </button>
-                {showRawDetails && (
-                  <pre className="mt-1 overflow-x-auto rounded bg-amber-100/70 p-2 font-mono text-[11px] text-amber-950">
-                    {status?.decodedRevert}
-                  </pre>
-                )}
-              </div>
+          <div className="mt-4 rounded-2xl border border-amber-300 bg-amber-50/90 p-4 text-xs text-amber-950">
+            <div className="flex items-center gap-1.5 font-semibold text-amber-900">
+              <AlertTriangle size={14} />
+              <span>Contract Reverted</span>
+            </div>
+            <p className="mt-1 text-xs text-amber-900 leading-relaxed">
+              {revertInfo.friendlyMessage}
+            </p>
+            <div className="mt-2 text-[11px] font-mono text-amber-800 bg-amber-100/60 p-2 rounded-lg">
+              Revert String: &ldquo;{status?.decodedRevert}&rdquo;
             </div>
           </div>
         )}
 
-        {/* Validator Disagreement Panel */}
+        {/* Undetermined Message Panel */}
         {stage === "undetermined" && (
-          <div className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4 text-xs text-blue-950">
-            <div className="flex items-start gap-2">
-              <AlertCircle size={16} className="mt-0.5 shrink-0 text-blue-700" />
-              <div>
-                <strong className="font-semibold">Validators did not agree this time.</strong>
-                <p className="mt-1 text-blue-900 leading-relaxed">
-                  The transaction status returned <code>{status?.statusName}</code>. The commitment is unchanged on-chain and remains in its previous state. Try again or provide a clearer, more direct source URL.
-                </p>
-                {onRetry && (
-                  <button
-                    type="button"
-                    onClick={onRetry}
-                    className="mt-3 inline-flex items-center gap-1.5 rounded-md bg-blue-700 px-3 py-1.5 font-sans font-medium text-white hover:bg-blue-800"
-                  >
-                    <RefreshCw size={13} />
-                    <span>Try again</span>
-                  </button>
-                )}
-              </div>
+          <div className="mt-4 rounded-2xl border border-blue-200 bg-blue-50/90 p-4 text-xs text-blue-950">
+            <div className="flex items-center gap-1.5 font-semibold text-blue-900">
+              <AlertCircle size={14} />
+              <span>Consensus Undetermined</span>
             </div>
+            <p className="mt-1 text-xs text-blue-900 leading-relaxed">
+              Validators evaluated the contract call but did not reach majority quorum on the deterministic output. The state remains unmodified. You may retry.
+            </p>
           </div>
         )}
 
-        {/* Close Button */}
-        <div className="mt-6 flex justify-end">
+        {/* Action Buttons */}
+        <div className="mt-6 flex items-center justify-end gap-3 border-t border-[#E8E5DF] pt-4">
+          {onRetry && (stage === "reverted" || stage === "undetermined") && (
+            <button
+              type="button"
+              onClick={onRetry}
+              className="inline-flex items-center gap-1.5 rounded-full border border-[#E8E5DF] bg-white px-5 py-2 text-xs font-semibold text-[#0E0E0D] hover:bg-[#F7F4EF] transition"
+            >
+              <RefreshCw size={13} />
+              <span>Retry Execution</span>
+            </button>
+          )}
           <button
             type="button"
             onClick={onClose}
-            disabled={stage === "signing" || stage === "consensus"}
-            className="rounded-lg border border-[#E7E3DC] bg-[#141413] px-4 py-2 font-sans text-xs font-semibold text-white transition hover:bg-[#333] disabled:opacity-40"
+            className="inline-flex items-center gap-1.5 rounded-full bg-[#0E0E0D] px-6 py-2 text-xs font-semibold text-white hover:bg-[#262624] transition"
           >
-            {stage === "complete" ? "Done" : "Close"}
+            <span>Close</span>
           </button>
         </div>
       </div>
