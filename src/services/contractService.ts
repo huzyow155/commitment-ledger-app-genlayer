@@ -58,6 +58,55 @@ export function decodeLeaderReceiptResult(base64Str: string): string {
 }
 
 /**
+ * Classifies whether a thrown readContract error from get_commitment represents
+ * a genuine on-chain `gl.vm.UserError("commitment not found")` revert rather than
+ * an arbitrary RPC/network failure or substring coincidence.
+ *
+ * Real Studionet `gen_call` shape when `get_commitment` raises `UserError("commitment not found")`:
+ * - viem `InvalidInputRpcError` with `code: -32000`, `details: "execution failed"`,
+ *   `cause: { code: -32000, message: "execution failed", data: {} }`
+ * Or direct revert message forms ending with the exact revert string.
+ */
+export function isCommitmentNotFoundError(err: unknown): boolean {
+  if (err && typeof err === "object") {
+    const errObj = err as {
+      code?: unknown;
+      details?: unknown;
+      message?: unknown;
+      cause?: { code?: unknown; message?: unknown };
+    };
+    const details = typeof errObj.details === "string" ? errObj.details.trim() : "";
+    const causeMsg =
+      errObj.cause && typeof errObj.cause.message === "string"
+        ? errObj.cause.message.trim()
+        : "";
+    const code = errObj.code ?? errObj.cause?.code;
+
+    if (
+      code === -32000 &&
+      (details === "execution failed" ||
+        causeMsg === "execution failed" ||
+        details === "commitment not found" ||
+        details.endsWith(": commitment not found") ||
+        details.endsWith("UserError: commitment not found") ||
+        causeMsg === "commitment not found" ||
+        causeMsg.endsWith(": commitment not found") ||
+        causeMsg.endsWith("UserError: commitment not found"))
+    ) {
+      return true;
+    }
+  }
+
+  const errMsg = err instanceof Error ? err.message : String(err ?? "");
+  const trimmed = errMsg.trim();
+  return (
+    trimmed === "commitment not found" ||
+    trimmed.endsWith(": commitment not found") ||
+    trimmed.endsWith("UserError: commitment not found")
+  );
+}
+
+/**
  * Reads a single commitment by ID.
  * Distinguishes RPC error from genuine 'commitment not found'.
  */
@@ -97,10 +146,10 @@ export async function getCommitment(
 
     return { ok: true, data: record };
   } catch (err: unknown) {
-    const errMsg = err instanceof Error ? err.message : String(err);
-    if (errMsg.includes("commitment not found") || errMsg.includes("UserError: commitment not found")) {
+    if (isCommitmentNotFoundError(err)) {
       return { ok: true, data: null, isNotFound: true };
     }
+    const errMsg = err instanceof Error ? err.message : String(err);
     return { ok: false, error: errMsg };
   }
 }

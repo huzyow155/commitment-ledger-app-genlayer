@@ -6,6 +6,7 @@ import {
 } from "../src/lib/validators";
 import { parseCommitmentStatus, parseCommitmentOutcome } from "../src/lib/outcome";
 import { mapRevertReason, REVERT_MAP } from "../src/lib/revertMap";
+import { isCommitmentNotFoundError } from "../src/services/contractService";
 
 describe("Validators Unit Tests", () => {
   describe("validateRawText", () => {
@@ -40,14 +41,23 @@ describe("Validators Unit Tests", () => {
       expect(validateDeadlineDate("2026-10-12").ok).toBe(true);
     });
 
+    it("accepts any 4-digit year allowed by the contract (0001-01-01, 2105-01-01, 9999-12-31)", () => {
+      expect(validateDeadlineDate("0001-01-01").ok).toBe(true);
+      expect(validateDeadlineDate("2105-01-01").ok).toBe(true);
+      expect(validateDeadlineDate("9999-12-31").ok).toBe(true);
+    });
+
     it("accepts leap year 2024-02-29", () => {
       expect(validateDeadlineDate("2024-02-29").ok).toBe(true);
     });
 
-    it("rejects non-leap year 2025-02-29", () => {
+    it("rejects non-leap year 2025-02-29 and century non-leap 2100-02-29", () => {
       const res = validateDeadlineDate("2025-02-29");
       expect(res.ok).toBe(false);
       expect(res.code).toBe("invalid_day");
+      const res2100 = validateDeadlineDate("2100-02-29");
+      expect(res2100.ok).toBe(false);
+      expect(res2100.code).toBe("invalid_day");
     });
 
     it("rejects month 13", () => {
@@ -199,5 +209,56 @@ describe("Revert Mapper Unit Tests", () => {
     const res = mapRevertReason("Some mysterious VM error");
     expect(res.friendlyMessage).toContain("Some mysterious VM error");
     expect(res.commitmentStaysOpen).toBe(true);
+  });
+});
+
+describe("isCommitmentNotFoundError Unit Tests", () => {
+  it("classifies real Studionet gen_call InvalidInputRpcError shape as not-found", () => {
+    const studionetErr = Object.assign(
+      new Error(
+        "Missing or invalid parameters.\nDouble check you have provided the correct parameters.\n\nDetails: execution failed\nVersion: viem@2.57.4"
+      ),
+      {
+        name: "InvalidInputRpcError",
+        code: -32000,
+        details: "execution failed",
+        shortMessage:
+          "Missing or invalid parameters.\nDouble check you have provided the correct parameters.",
+        cause: {
+          code: -32000,
+          message: "execution failed",
+          data: {},
+        },
+      }
+    );
+    expect(isCommitmentNotFoundError(studionetErr)).toBe(true);
+  });
+
+  it("classifies exact revert strings and exact revert suffixes as not-found", () => {
+    expect(isCommitmentNotFoundError(new Error("commitment not found"))).toBe(true);
+    expect(isCommitmentNotFoundError(new Error("UserError: commitment not found"))).toBe(true);
+    expect(isCommitmentNotFoundError(new Error("gen_call failed: commitment not found"))).toBe(true);
+  });
+
+  it("does NOT classify adversarial or unrelated errors containing the substring as not-found", () => {
+    expect(
+      isCommitmentNotFoundError(
+        new Error("the commitment not found in your list of favorites")
+      )
+    ).toBe(false);
+    expect(
+      isCommitmentNotFoundError(
+        new Error("commitment not found in local cache, please retry")
+      )
+    ).toBe(false);
+    expect(isCommitmentNotFoundError(new Error("not found commitment"))).toBe(false);
+    expect(isCommitmentNotFoundError(new Error("HTTP 502 Bad Gateway"))).toBe(false);
+    expect(
+      isCommitmentNotFoundError({
+        code: -32603,
+        details: "internal server error",
+        message: "Internal error",
+      })
+    ).toBe(false);
   });
 });

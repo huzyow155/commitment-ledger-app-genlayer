@@ -37,9 +37,8 @@ export function validateRawText(text: string): ValidationResult {
 
 /**
  * Validates strict calendar date YYYY-MM-DD including leap year calculation.
- * Contract rules:
- * - Match ^\d{4}-\d{2}-\d{2}$
- * - Year 1900..2100
+ * Contract rules (_validate_deadline_date):
+ * - Match ^\d{4}-\d{2}-\d{2}$ (any 4-digit year)
  * - Month 1..12
  * - Days per month respecting leap years (divisible by 4 and not 100, or divisible by 400)
  */
@@ -57,14 +56,6 @@ export function validateDeadlineDate(dateStr: string): ValidationResult {
   const month = parseInt(match[2], 10);
   const day = parseInt(match[3], 10);
 
-  if (year < 1900 || year > 2100) {
-    return {
-      ok: false,
-      code: "year_out_of_range",
-      message: "Year must be between 1900 and 2100.",
-    };
-  }
-
   if (month < 1 || month > 12) {
     return {
       ok: false,
@@ -81,7 +72,7 @@ export function validateDeadlineDate(dateStr: string): ValidationResult {
     return {
       ok: false,
       code: "invalid_day",
-      message: `Invalid calendar day for ${year}-${match[2]} (max ${maxDays} days).`,
+      message: `Invalid calendar day for ${match[1]}-${match[2]} (max ${maxDays} days).`,
     };
   }
 
