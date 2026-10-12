@@ -1,6 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { Copy, Check, ExternalLink, Key, RefreshCw, Download, Upload, Shield } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
+import {
+  Copy,
+  Check,
+  ExternalLink,
+  Key,
+  RefreshCw,
+  Download,
+  Upload,
+  Shield,
+  ChevronDown,
+} from "lucide-react";
 import { useWallet } from "../context/WalletContext";
 import {
   CONTRACT_ADDRESS,
@@ -14,9 +24,84 @@ const ArrowIcon = () => (
   </svg>
 );
 
+export const BrandLogoMark: React.FC<{
+  className?: string;
+  variant?: "editorial" | "ocean";
+}> = ({ className = "wordmark-logo", variant = "editorial" }) => {
+  const isOcean = variant === "ocean";
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 64 64"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <rect
+        x="4"
+        y="4"
+        width="56"
+        height="56"
+        rx="15"
+        fill={isOcean ? "#f8fbff" : "#0a0a0a"}
+        stroke={isOcean ? "#7fd0ff" : "#164777"}
+        strokeWidth="2"
+      />
+      <rect
+        x="8.5"
+        y="8.5"
+        width="47"
+        height="47"
+        rx="11"
+        stroke={isOcean ? "#0a1f3d" : "#ffffff"}
+        strokeWidth="1.25"
+        strokeOpacity={isOcean ? "0.2" : "0.24"}
+      />
+      <line
+        x1="18.5"
+        y1="17.5"
+        x2="18.5"
+        y2="45.5"
+        stroke={isOcean ? "#164777" : "#4fa3d1"}
+        strokeWidth="2.6"
+        strokeLinecap="round"
+      />
+      <line
+        x1="24.5"
+        y1="20.5"
+        x2="39.5"
+        y2="20.5"
+        stroke={isOcean ? "#0a1f3d" : "#ffffff"}
+        strokeWidth="3.4"
+        strokeLinecap="round"
+      />
+      <line
+        x1="24.5"
+        y1="28.5"
+        x2="35"
+        y2="28.5"
+        stroke={isOcean ? "#0a1f3d" : "#ffffff"}
+        strokeWidth="3.4"
+        strokeLinecap="round"
+        strokeOpacity="0.82"
+      />
+      <path
+        d="M24 38.5L30.8 45.2L46.5 27.5"
+        stroke={isOcean ? "#164777" : "#4fa3d1"}
+        strokeWidth="4.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="46" cy="20.5" r="2.3" fill={isOcean ? "#1e5a8f" : "#4fa3d1"} />
+    </svg>
+  );
+};
+
 export const Header: React.FC = () => {
   const { address, privateKey, resetWallet, importKey } = useWallet();
+  const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [onOcean, setOnOcean] = useState(false);
   const [copiedAddr, setCopiedAddr] = useState(false);
   const [copiedContract, setCopiedContract] = useState(false);
   const [showWalletMenu, setShowWalletMenu] = useState(false);
@@ -38,6 +123,29 @@ export const Header: React.FC = () => {
       document.removeEventListener("keydown", onKeyDown);
     };
   }, [menuOpen]);
+
+  useEffect(() => {
+    const updateNavSurface = () => {
+      const themedSections = document.querySelectorAll<HTMLElement>("[data-theme]");
+      const probeY = 38;
+      let detectedOcean = false;
+      themedSections.forEach((sec) => {
+        const rect = sec.getBoundingClientRect();
+        if (rect.top <= probeY && rect.bottom >= probeY) {
+          detectedOcean = sec.getAttribute("data-theme") === "ocean";
+        }
+      });
+      setOnOcean(detectedOcean);
+    };
+
+    updateNavSurface();
+    window.addEventListener("scroll", updateNavSurface, { passive: true });
+    window.addEventListener("resize", updateNavSurface);
+    return () => {
+      window.removeEventListener("scroll", updateNavSurface);
+      window.removeEventListener("resize", updateNavSurface);
+    };
+  }, [location.pathname]);
 
   const copyAddress = () => {
     if (address) {
@@ -74,21 +182,26 @@ export const Header: React.FC = () => {
     }
   };
 
+  const useOceanTheme = onOcean && !menuOpen;
+
   return (
     <>
-      <header className="navbar">
-        <div className="flex items-center gap-3">
+      <header
+        className={`navbar ${useOceanTheme ? "navbar-on-ocean" : ""}`}
+        data-nav-theme={useOceanTheme ? "ocean" : "editorial"}
+      >
+        <div className="flex items-center">
           <Link className="wordmark" to="/" aria-label="CommitmentLedger home">
+            <BrandLogoMark
+              className="wordmark-logo"
+              variant={useOceanTheme ? "ocean" : "editorial"}
+            />
             <span>CommitmentLedger</span>
             <sup>v2.2</sup>
           </Link>
-          <span className="hidden lg:inline-flex items-center gap-1.5 rounded-full bg-white/85 border border-black/10 px-3 py-1 text-[11px] font-medium text-[#0a0a0a] shadow-sm backdrop-blur-sm">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#17c964]" />
-            <span>{NETWORK_STATUS}</span>
-          </span>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-2.5">
+        <div className="navbar-actions flex items-center gap-2.5 sm:gap-3.5">
           {/* Contract Pill */}
           <div className="hidden md:inline-flex items-center gap-1.5 rounded-full bg-white/88 border border-black/10 px-3.5 py-2 text-xs text-[#0a0a0a] shadow-sm backdrop-blur-sm">
             <Shield size={12} className="text-[#0a0a0a]" />
@@ -120,7 +233,7 @@ export const Header: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowWalletMenu(!showWalletMenu)}
-              className="inline-flex items-center gap-1.5 rounded-full bg-white/92 border border-black/10 px-3 py-2 text-xs font-medium text-[#0a0a0a] shadow-sm transition hover:bg-white"
+              className="wallet-pill-trigger inline-flex items-center gap-1 sm:gap-1.5 rounded-full bg-white/92 border border-black/10 px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs font-medium text-[#0a0a0a] shadow-sm transition hover:bg-white"
             >
               <Key size={12} className="text-[#0a0a0a] shrink-0" />
               <span className="font-mono tracking-tight text-[11px] sm:text-xs">
@@ -216,7 +329,7 @@ export const Header: React.FC = () => {
             )}
           </div>
 
-          {/* Original Alwayzz Menu Trigger */}
+          {/* Menu Trigger with Lucide ChevronDown */}
           <button
             className="menu-trigger"
             type="button"
@@ -225,12 +338,17 @@ export const Header: React.FC = () => {
             onClick={() => setMenuOpen(!menuOpen)}
           >
             <span>Menu</span>
-            <span className="chevron" aria-hidden="true">⌃</span>
+            <ChevronDown
+              size={15}
+              strokeWidth={2.2}
+              className={`menu-chevron ${menuOpen ? "is-open" : ""}`}
+              aria-hidden="true"
+            />
           </button>
         </div>
       </header>
 
-      {/* Original Alwayzz Fullscreen Drawer */}
+      {/* Fullscreen Drawer */}
       <div
         id="site-drawer"
         className={`site-drawer ${menuOpen ? "is-open" : ""}`}
@@ -238,14 +356,13 @@ export const Header: React.FC = () => {
       >
         <div className="drawer-inner">
           <div className="drawer-topline">
-            <span className="drawer-kicker">CommitmentLedger / Navigation</span>
             <button
               className="drawer-close"
               type="button"
               aria-label="Close menu"
               onClick={() => setMenuOpen(false)}
             >
-              Close <span aria-hidden="true">×</span>
+              Close <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <nav className="drawer-nav" aria-label="Main navigation">
@@ -276,7 +393,7 @@ export const Header: React.FC = () => {
             </a>
           </nav>
           <div className="drawer-footer">
-            <span>© 2026 CommitmentLedger · {NETWORK_STATUS}</span>
+            <span>(c) 2026 CommitmentLedger - {NETWORK_STATUS}</span>
             <span>Source-grounded consensus.</span>
           </div>
         </div>

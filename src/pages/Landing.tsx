@@ -28,6 +28,7 @@ import {
   AlwayzzTrustedSection,
   useScrollReveal,
 } from "../components/AlwayzzAtmosphere";
+import { BrandLogoMark } from "../components/Header";
 
 export const Landing: React.FC = () => {
   const [copiedContract, setCopiedContract] = useState(false);
@@ -977,6 +978,7 @@ console.log(JSON.parse(recordJson));`;
         <div className="reveal-on-scroll mx-auto flex max-w-5xl flex-col items-center justify-between gap-6 sm:flex-row">
           <div className="flex items-center gap-2">
             <span className="wordmark">
+              <BrandLogoMark className="wordmark-logo wordmark-logo-sm" variant="editorial" />
               <span style={{ fontSize: "24px" }}>CommitmentLedger</span>
               <sup>v2.2</sup>
             </span>
