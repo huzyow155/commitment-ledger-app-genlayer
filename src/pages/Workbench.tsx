@@ -36,12 +36,15 @@ import {
   AlwayzzLines,
   AlwayzzTicker,
   AlwayzzTrustedSection,
+  useScrollReveal,
 } from "../components/AlwayzzAtmosphere";
 
 export const Workbench: React.FC = () => {
   const { account, address } = useWallet();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") || "register";
+
+  useScrollReveal(activeTab);
 
   const setTab = (tab: string) => {
     setSearchParams({ tab });
@@ -544,7 +547,7 @@ export const Workbench: React.FC = () => {
 
                 {/* Quick Picker for User's Open Commitments */}
                 <div>
-                  <div className="workbench-surface p-6">
+                  <div className="workbench-surface p-6 reveal-on-scroll" style={{ "--stagger": 1 } as React.CSSProperties}>
                     <h3 className="font-serif text-base font-semibold text-[#0a0a0a]">
                       Your Open Commitments
                     </h3>
@@ -560,11 +563,12 @@ export const Workbench: React.FC = () => {
                       ) : (
                         myCommitments
                           .filter((c) => c.status === "OPEN")
-                          .map((comm) => (
+                          .map((comm, idx) => (
                             <div
                               key={comm.commitment_id}
                               onClick={() => setResolveCommitmentId(comm.commitment_id)}
-                              className="cursor-pointer rounded-2xl border border-black/10 bg-white p-3.5 text-xs transition hover:border-[#0a0a0a]"
+                              className="reveal-on-scroll cursor-pointer rounded-2xl border border-black/10 bg-white p-3.5 text-xs transition hover:border-[#0a0a0a]"
+                              style={{ "--stagger": idx } as React.CSSProperties}
                             >
                               <div className="flex items-center justify-between font-mono font-semibold text-[#0a0a0a]">
                                 <span>{comm.commitment_id}</span>
@@ -586,7 +590,7 @@ export const Workbench: React.FC = () => {
             {activeTab === "lookup" && (
               <div className="space-y-8">
                 {/* Lookup Input Box */}
-                <div className="workbench-surface p-7 sm:p-9">
+                <div className="workbench-surface p-7 sm:p-9 reveal-on-scroll" style={{ "--stagger": 0 } as React.CSSProperties}>
                   <h2 className="font-serif text-2xl font-semibold text-[#0a0a0a]">
                     Read Commitment by ID
                   </h2>
@@ -640,7 +644,7 @@ export const Workbench: React.FC = () => {
                 </div>
 
                 {/* My Commitments List */}
-                <div className="workbench-surface p-7 sm:p-9">
+                <div className="workbench-surface p-7 sm:p-9 reveal-on-scroll" style={{ "--stagger": 1 } as React.CSSProperties}>
                   <div className="flex items-center justify-between border-b border-black/10 pb-5">
                     <div>
                       <h3 className="font-serif text-xl font-semibold text-[#0a0a0a]">
@@ -665,15 +669,20 @@ export const Workbench: React.FC = () => {
                         No commitments found for this address. Use the Register tab to create your first commitment.
                       </p>
                     ) : (
-                      myCommitments.map((comm) => (
-                        <CommitmentCard
+                      myCommitments.map((comm, idx) => (
+                        <div
                           key={comm.commitment_id}
-                          commitment={comm}
-                          onResolveClick={(id) => {
-                            setResolveCommitmentId(id);
-                            setTab("resolve");
-                          }}
-                        />
+                          className="reveal-on-scroll"
+                          style={{ "--stagger": idx } as React.CSSProperties}
+                        >
+                          <CommitmentCard
+                            commitment={comm}
+                            onResolveClick={(id) => {
+                              setResolveCommitmentId(id);
+                              setTab("resolve");
+                            }}
+                          />
+                        </div>
                       ))
                     )}
                   </div>
@@ -684,7 +693,7 @@ export const Workbench: React.FC = () => {
             {/* 4. VERIFIED EXAMPLES TAB */}
             {activeTab === "examples" && (
               <div className="space-y-6">
-                <div className="workbench-surface p-7 text-xs text-[#6b6b6b]">
+                <div className="workbench-surface p-7 text-xs text-[#6b6b6b] reveal-on-scroll" style={{ "--stagger": 0 } as React.CSSProperties}>
                   <h2 className="font-serif text-2xl font-semibold text-[#0a0a0a]">
                     Real Studionet Consensus Cases
                   </h2>
@@ -710,7 +719,7 @@ export const Workbench: React.FC = () => {
                 )}
 
                 {examplesData.caseA && (
-                  <div className="workbench-surface p-7 sm:p-8">
+                  <div className="workbench-surface p-7 sm:p-8 reveal-on-scroll" style={{ "--stagger": 1 } as React.CSSProperties}>
                     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-black/10 pb-4">
                       <span className="font-sans text-xs font-bold uppercase tracking-wider text-emerald-800">
                         Case A: Paraphrased Source Fulfillment (KEPT)
@@ -734,7 +743,7 @@ export const Workbench: React.FC = () => {
                 )}
 
                 {examplesData.caseB && (
-                  <div className="workbench-surface p-7 sm:p-8">
+                  <div className="workbench-surface p-7 sm:p-8 reveal-on-scroll" style={{ "--stagger": 2 } as React.CSSProperties}>
                     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-black/10 pb-4">
                       <span className="font-sans text-xs font-bold uppercase tracking-wider text-rose-800">
                         Case B: Grounded Verbatim Evidence of Non-Fulfillment (BROKEN)
@@ -758,7 +767,7 @@ export const Workbench: React.FC = () => {
                 )}
 
                 {examplesData.caseC && (
-                  <div className="workbench-surface p-7 sm:p-8">
+                  <div className="workbench-surface p-7 sm:p-8 reveal-on-scroll" style={{ "--stagger": 3 } as React.CSSProperties}>
                     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-black/10 pb-4">
                       <span className="font-sans text-xs font-bold uppercase tracking-wider text-amber-800">
                         Case C: Distractor Rejection (NOMATCH Revert, Commitment Stays OPEN)

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 const TICKER_ITEMS = [
   "Public Commitments",
@@ -21,10 +21,16 @@ const TRUSTED_DOMAINS: Array<[string, string]> = [
   ["Source-Grounded", "logo-airbnb"],
 ];
 
-export const AlwayzzLines: React.FC = () => {
+export const AlwayzzLines: React.FC<{ variant?: "light" | "ocean" }> = ({
+  variant = "light",
+}) => {
+  const variantClass = variant === "ocean" ? "ocean-lines" : "";
   return (
     <>
-      <div className="hero-lines side-lines left-lines" aria-hidden="true">
+      <div
+        className={`hero-lines side-lines left-lines ${variantClass}`}
+        aria-hidden="true"
+      >
         {Array.from({ length: 20 }, (_, i) => (
           <span
             key={`left-${i}`}
@@ -36,7 +42,10 @@ export const AlwayzzLines: React.FC = () => {
           />
         ))}
       </div>
-      <div className="hero-lines side-lines right-lines" aria-hidden="true">
+      <div
+        className={`hero-lines side-lines right-lines ${variantClass}`}
+        aria-hidden="true"
+      >
         {Array.from({ length: 20 }, (_, i) => (
           <span
             key={`right-${i}`}
@@ -48,7 +57,7 @@ export const AlwayzzLines: React.FC = () => {
           />
         ))}
       </div>
-      <div className="hero-lines top-lines" aria-hidden="true">
+      <div className={`hero-lines top-lines ${variantClass}`} aria-hidden="true">
         {Array.from({ length: 12 }, (_, i) => (
           <span
             key={`top-${i}`}
@@ -63,6 +72,77 @@ export const AlwayzzLines: React.FC = () => {
     </>
   );
 };
+
+/**
+ * Progressive-enhancement one-shot IntersectionObserver hook.
+ * Content defaults to visible in CSS if JS is disabled or reduced motion is preferred.
+ * Each observed element animates in once when entering the viewport and never replays.
+ */
+export function useScrollReveal(triggerKey?: unknown): void {
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const prefersReduced =
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const selector = ".reveal-heading, .reveal-on-scroll";
+
+    if (prefersReduced || typeof IntersectionObserver === "undefined") {
+      document.documentElement.classList.remove("js-scroll-ready");
+      document.querySelectorAll<HTMLElement>(selector).forEach((el) => {
+        el.classList.add("is-revealed");
+      });
+      return;
+    }
+
+    document.documentElement.classList.add("js-scroll-ready");
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-revealed");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.08,
+        rootMargin: "0px 0px -24px 0px",
+      }
+    );
+
+    const registerElements = () => {
+      const elements = document.querySelectorAll<HTMLElement>(
+        ".reveal-heading:not(.is-revealed), .reveal-on-scroll:not(.is-revealed)"
+      );
+      elements.forEach((el) => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight * 0.92 && rect.bottom > 0) {
+          el.classList.add("is-revealed");
+        } else {
+          observer.observe(el);
+        }
+      });
+    };
+
+    registerElements();
+
+    const mutationObserver = new MutationObserver(() => {
+      registerElements();
+    });
+    mutationObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+
+    return () => {
+      observer.disconnect();
+      mutationObserver.disconnect();
+    };
+  }, [triggerKey]);
+}
 
 export const AlwayzzTicker: React.FC<{ items?: string[]; ariaLabel?: string }> = ({
   items = TICKER_ITEMS,
