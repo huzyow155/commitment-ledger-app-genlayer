@@ -1,0 +1,68 @@
+{
+  "network": "GenLayer Studionet (Preview)",
+  "chainId": 61999,
+  "runnerAddress": "0xCE99a5b07325130bea57D893d13eB8A882fBe7ff",
+  "timestamp": "2026-10-12T03:23:06.017Z",
+  "flow": {
+    "commitmentId": "2cb7fcbc7999",
+    "registerTx": "0x0019c0d7d4df260e52cb6525e068e8eddfa47fa52361e63836e15641b7afb4c6",
+    "registerRetries": 0,
+    "initialRecord": {
+      "schema_version": "2.2.0",
+      "commitment_id": "2cb7fcbc7999",
+      "registrant": "0xCE99a5b07325130bea57D893d13eB8A882fBe7ff",
+      "raw_text": "The Apollo 11 lunar module will touch down on the lunar surface before 1970. (E2E run 1791775386017)",
+      "subject": "apollo 11 lunar module",
+      "action": "touch down on the lunar surface before 1970",
+      "deadline_hint": "1970-01-01",
+      "created_round": 9,
+      "status": "OPEN",
+      "outcome": null,
+      "source_url": null,
+      "resolution_quote": null,
+      "match_confirmed": false,
+      "resolved_at": null,
+      "resolver": null
+    },
+    "resolveTx": "0x30e08628b0d0441915b65df5dcfa9417021db95b4b7dfcb6ba3c66c8ec0c2854",
+    "resolveRetries": 2,
+    "resolveReceipt": {
+      "txHash": "0x30e08628b0d0441915b65df5dcfa9417021db95b4b7dfcb6ba3c66c8ec0c2854",
+      "statusName": "ACCEPTED",
+      "leaderResult": "SUCCESS",
+      "decodedRevert": "",
+      "isMajorityDisagreed": false
+    },
+    "finalRecord": {
+      "schema_version": "2.2.0",
+      "commitment_id": "2cb7fcbc7999",
+      "registrant": "0xCE99a5b07325130bea57D893d13eB8A882fBe7ff",
+      "raw_text": "The Apollo 11 lunar module will touch down on the lunar surface before 1970. (E2E run 1791775386017)",
+      "subject": "apollo 11 lunar module",
+      "action": "touch down on the lunar surface before 1970",
+      "deadline_hint": "1970-01-01",
+      "created_round": 9,
+      "status": "RESOLVED",
+      "outcome": "KEPT",
+      "source_url": "https://en.wikipedia.org/wiki/Apollo_11",
+      "resolution_quote": "Armstrong and Aldrin descended to the surface aboard the LM Eagle, landing in the Sea of Tranquility (Mare Tranquillitatis) on July 20 at 20:17 UTC",
+      "match_confirmed": true,
+      "resolved_at": "2026-10-12T03:26:57.314265Z",
+      "resolver": "0xCE99a5b07325130bea57D893d13eB8A882fBe7ff"
+    }
+  },
+  "negatives": {
+    "nonAllowlistedDomain": {
+      "txHash": "0x0b377fbaf1221fb74004b7d35abb1004043e99f218a485a77363c1cdb3fcaefb",
+      "statusName": "ACCEPTED",
+      "leaderResult": "ERROR",
+      "revertPayload": "source_url domain not in authorized allowlist"
+    },
+    "alreadyResolved": {
+      "txHash": "0x71df5d4f1571e57c06bc7e1cfdc897beabe73e881fb7d56fdbe06cc0f6a7576c",
+      "statusName": "ACCEPTED",
+      "leaderResult": "ERROR",
+      "revertPayload": "commitment already resolved"
+    }
+  }
+}

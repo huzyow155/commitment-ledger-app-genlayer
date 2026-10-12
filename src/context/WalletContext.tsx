@@ -1,0 +1,87 @@
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { createAccount, generatePrivateKey } from "genlayer-js";
+
+interface WalletContextType {
+  account: any | null;
+  privateKey: string | null;
+  address: string | null;
+  resetWallet: () => void;
+  importKey: (key: string) => boolean;
+}
+
+const STORAGE_KEY = "commitment_ledger_throwaway_key";
+
+const WalletContext = createContext<WalletContextType>({
+  account: null,
+  privateKey: null,
+  address: null,
+  resetWallet: () => {},
+  importKey: () => false,
+});
+
+export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [privateKey, setPrivateKey] = useState<string | null>(null);
+  const [account, setAccount] = useState<any | null>(null);
+
+  const initAccountFromKey = (key: string) => {
+    try {
+      const formattedKey = (key.startsWith("0x") ? key : `0x${key}`) as `0x${string}`;
+      const acc = createAccount(formattedKey);
+      setAccount(acc);
+      setPrivateKey(formattedKey);
+      try {
+        localStorage.setItem(STORAGE_KEY, formattedKey);
+      } catch {
+        // localStorage might be unavailable or throw in private mode
+      }
+      return true;
+    } catch (err) {
+      console.error("Failed to initialize account from key:", err);
+      return false;
+    }
+  };
+
+  const resetWallet = () => {
+    try {
+      const freshKey = generatePrivateKey();
+      initAccountFromKey(freshKey);
+    } catch (err) {
+      console.error("Failed to generate fresh wallet:", err);
+    }
+  };
+
+  const importKey = (key: string) => {
+    return initAccountFromKey(key.trim());
+  };
+
+  useEffect(() => {
+    let existingKey: string | null = null;
+    try {
+      existingKey = localStorage.getItem(STORAGE_KEY);
+    } catch {
+      // ignore
+    }
+
+    if (existingKey) {
+      initAccountFromKey(existingKey);
+    } else {
+      resetWallet();
+    }
+  }, []);
+
+  return (
+    <WalletContext.Provider
+      value={{
+        account,
+        privateKey,
+        address: account ? account.address : null,
+        resetWallet,
+        importKey,
+      }}
+    >
+      {children}
+    </WalletContext.Provider>
+  );
+};
+
+export const useWallet = () => useContext(WalletContext);
