@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="512" height="512" fill="none" role="img" aria-label="CommitmentLedger verified record seal">
+  <defs>
+    <linearGradient id="cl-seal-bg" x1="8" y1="6" x2="56" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0a0a0a" />
+      <stop offset="58%" stop-color="#0f2544" />
+      <stop offset="100%" stop-color="#164777" />
+    </linearGradient>
+    <linearGradient id="cl-tick-grad" x1="23" y1="45" x2="47" y2="25" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#4fa3d1" />
+      <stop offset="100%" stop-color="#9ad7f8" />
+    </linearGradient>
+  </defs>
+
+  <!-- Outer Notary Seal Body (chamfered editorial ledger shield) -->
+  <rect x="4" y="4" width="56" height="56" rx="15" fill="url(#cl-seal-bg)" stroke="#4fa3d1" stroke-width="1.5" stroke-opacity="0.45" />
+
+  <!-- Inner Notary Seal Ring -->
+  <rect x="8.5" y="8.5" width="47" height="47" rx="11" stroke="#ffffff" stroke-width="1.25" stroke-opacity="0.22" />
+
+  <!-- Ledger Margin Spine -->
+  <line x1="18.5" y1="17.5" x2="18.5" y2="45.5" stroke="#4fa3d1" stroke-width="2.4" stroke-linecap="round" stroke-opacity="0.85" />
+
+  <!-- Ledger Record Lines -->
+  <line x1="24.5" y1="20.5" x2="39.5" y2="20.5" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round" />
+  <line x1="24.5" y1="28.5" x2="35" y2="28.5" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round" stroke-opacity="0.82" />
+
+  <!-- Verified Consensus Checkmark -->
+  <path d="M24 38.5L30.8 45.2L46.5 27.5" stroke="url(#cl-tick-grad)" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Notary Verification Seal Node -->
+  <circle cx="46" cy="20.5" r="2.2" fill="#4fa3d1" />
+</svg>
