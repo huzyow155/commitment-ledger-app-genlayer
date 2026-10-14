@@ -424,7 +424,7 @@ async function main() {
   // Test Lookup tab nonexistent ID on Studionet (Bug Fix 2)
   await page.click("button:has-text('Lookup & History')");
   await page.waitForTimeout(850);
-  const lookupInput = page.locator("input[placeholder*='1fe69a47c557']");
+  const lookupInput = page.locator("input[placeholder*='commitment ID']");
   await lookupInput.fill("deadbeef0000");
   await lookupInput.press("Enter");
   await page.waitForSelector("text=Commitment Not Found:", { timeout: 25000 });
