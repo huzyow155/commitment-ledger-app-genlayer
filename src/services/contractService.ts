@@ -6,6 +6,16 @@ import {
   type CommitmentRecord,
   type DecisionRecord,
 } from "../lib/outcome";
+import {
+  isTerminalReceiptStatus,
+  isAcceptedReceiptStatus,
+  isDisagreedReceiptStatus,
+  isTimeoutReceiptStatus,
+  verifyRegistrationReadback,
+  verifyResolutionReadback,
+  verifyChallengeReadback,
+  verifyFinalizeReadback,
+} from "../lib/txLifecycle";
 
 export type ContractReadResult<T> =
   | { ok: true; data: T; isNotFound?: false }
@@ -275,10 +285,9 @@ export async function pollTransactionReceipt(
           }
         }
 
-        const isMajorityDisagreed =
-          statusName === "UNDETERMINED" ||
-          statusName === "MAJORITY_DISAGREE" ||
-          consensusData?.result_name === "MAJORITY_DISAGREE";
+        const isMajorityDisagreed = isDisagreedReceiptStatus(statusName, consensusData?.result_name);
+        const isAccepted = isAcceptedReceiptStatus(statusName);
+        const isTerminal = isTerminalReceiptStatus(statusName) || isMajorityDisagreed;
 
         const report: TxStatusReport = {
           txHash,
@@ -292,7 +301,7 @@ export async function pollTransactionReceipt(
           onStatusUpdate(report);
         }
 
-        if (statusName === "ACCEPTED" || statusName === "FINALIZED" || isMajorityDisagreed) {
+        if (isTerminal || isAccepted) {
           return report;
         }
       }
@@ -338,7 +347,7 @@ export async function registerCommitmentFlow(
 
   const report = await pollTransactionReceipt(txHash, onStatusUpdate);
 
-  if (report.statusName !== "ACCEPTED" || report.leaderResult === "ERROR") {
+  if (!isAcceptedReceiptStatus(report.statusName) || report.leaderResult === "ERROR") {
     throw new Error(report.decodedRevert || `Transaction failed with status ${report.statusName}`);
   }
 

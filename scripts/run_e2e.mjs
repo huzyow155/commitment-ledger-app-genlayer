@@ -83,8 +83,27 @@ async function main() {
   }
   evidenceReport.flow.initialRecord = initialRead.data;
 
-  // STEP 3: RESOLVE COMMITMENT WITH ALLOWLISTED WIKIPEDIA URL
-  console.log(`\n[3/4] Submitting resolution via allowlisted source: ${sourceUrl}...`);
+  // STEP 3: ON-CHAIN NEGATIVE REJECTION 1 (Non-allowlisted domain on OPEN commitment)
+  console.log(`\n[3/5] Testing non-allowlisted domain rejection on open commitment...`);
+  const neg1 = await submitResolutionFlow(
+    account,
+    commitmentId,
+    "https://github.com/nasa/webb",
+    (status) => {
+      console.log(`  -> Negative 1 status: ${status.statusName} (Leader: ${status.leaderResult || "pending"})`);
+    }
+  );
+  console.log(`  Negative 1 Tx: ${neg1.txHash}`);
+  console.log(`  Decoded Revert: "${neg1.report.decodedRevert}"`);
+  evidenceReport.negatives.nonAllowlistedDomain = {
+    txHash: neg1.txHash,
+    statusName: neg1.report.statusName,
+    leaderResult: neg1.report.leaderResult,
+    revertPayload: neg1.report.decodedRevert,
+  };
+
+  // STEP 4: RESOLVE COMMITMENT WITH ALLOWLISTED WIKIPEDIA URL
+  console.log(`\n[4/5] Submitting resolution via allowlisted source: ${sourceUrl}...`);
   let resolveResult;
   let resolveRetries = 0;
   while (resolveRetries <= 2) {
@@ -134,34 +153,18 @@ async function main() {
   }
   evidenceReport.flow.finalRecord = resolvedRead.data;
 
-  // STEP 4: ON-CHAIN NEGATIVE TESTS THROUGH SAME SERVICE
-  console.log(`\n[4/4] Executing on-chain negative rejection tests through contractService...`);
-
-  // Negative 1: Non-allowlisted domain (GitHub) on OPEN commitment 3d2cc5901dad
-  console.log(`  -> Submitting non-allowlisted domain on open commitment...`);
-  const neg1 = await submitResolutionFlow(
-    account,
-    "3d2cc5901dad",
-    "https://github.com/nasa/webb"
-  );
-  console.log(`     Tx Hash: ${neg1.txHash}`);
-  console.log(`     Decoded Revert: "${neg1.report.decodedRevert}"`);
-  evidenceReport.negatives.nonAllowlistedDomain = {
-    txHash: neg1.txHash,
-    statusName: neg1.report.statusName,
-    leaderResult: neg1.report.leaderResult,
-    revertPayload: neg1.report.decodedRevert,
-  };
-
-  // Negative 2: Second resolution on already provisional commitment
-  console.log(`  -> Submitting second resolution on already resolved/provisional commitment...`);
+  // STEP 5: ON-CHAIN NEGATIVE REJECTION 2 (Second resolution on already resolved/provisional commitment)
+  console.log(`\n[5/5] Testing second resolution rejection on already provisional commitment...`);
   const neg2 = await submitResolutionFlow(
     account,
     commitmentId,
-    sourceUrl
+    sourceUrl,
+    (status) => {
+      console.log(`  -> Negative 2 status: ${status.statusName} (Leader: ${status.leaderResult || "pending"})`);
+    }
   );
-  console.log(`     Tx Hash: ${neg2.txHash}`);
-  console.log(`     Decoded Revert: "${neg2.report.decodedRevert}"`);
+  console.log(`  Negative 2 Tx: ${neg2.txHash}`);
+  console.log(`  Decoded Revert: "${neg2.report.decodedRevert}"`);
   evidenceReport.negatives.alreadyResolved = {
     txHash: neg2.txHash,
     statusName: neg2.report.statusName,

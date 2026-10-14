@@ -1,14 +1,15 @@
 import React, { useState } from "react";
-import { Check, Copy, ExternalLink, RefreshCw, AlertCircle, AlertTriangle } from "lucide-react";
+import { Check, Copy, ExternalLink, RefreshCw, AlertCircle, AlertTriangle, CheckCircle, Clock } from "lucide-react";
 import type { TxStatusReport } from "../services/contractService";
 import { mapRevertReason } from "../lib/revertMap";
 import { getExplorerTxUrl } from "../config/chain";
+import type { PipelineStage } from "../lib/txLifecycle";
 
 interface TxPipelineModalProps {
   isOpen: boolean;
   onClose: () => void;
   status: TxStatusReport | null;
-  stage: "signing" | "submitting" | "consensus" | "complete" | "reverted" | "undetermined";
+  stage: PipelineStage;
   title?: string;
   onRetry?: () => void;
 }
@@ -34,6 +35,10 @@ export const TxPipelineModal: React.FC<TxPipelineModalProps> = ({
   };
 
   const revertInfo = status?.decodedRevert ? mapRevertReason(status.decodedRevert) : null;
+  const isTerminalSuccess = stage === "complete" || stage === "state_confirmed";
+  const isDisagreed = stage === "disagreed" || (stage as string) === "undetermined";
+  const isTimedOut = stage === "timed_out";
+  const isReverted = stage === "reverted";
 
   return (
     <div
@@ -91,48 +96,68 @@ export const TxPipelineModal: React.FC<TxPipelineModalProps> = ({
               className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
                 stage === "consensus"
                   ? "animate-pulse bg-[#0a0a0a] text-white"
-                  : stage === "complete" || stage === "reverted" || stage === "undetermined"
+                  : isTerminalSuccess || stage === "accepted"
                   ? "bg-[#17c964] text-white"
+                  : isDisagreed
+                  ? "bg-sky-600 text-white"
+                  : isReverted
+                  ? "bg-amber-600 text-white"
+                  : isTimedOut
+                  ? "bg-orange-500 text-white"
                   : "bg-black/10 text-[#6b6b6b]"
               }`}
             >
               2
             </div>
             <div className="text-xs">
-              <span className="font-semibold text-[#0a0a0a] text-sm block">Multi-Validator Consensus</span>
+              <span className="font-semibold text-[#0a0a0a] text-sm block">Validator Consensus</span>
               <p className="text-xs text-[#6b6b6b] mt-0.5 leading-relaxed">
                 {stage === "consensus"
-                  ? "Validators executing strict_eq evaluation across network nodes (15–35s)..."
+                  ? "Validators executing prompt_comparative evaluation across network nodes..."
+                  : stage === "accepted" || isTerminalSuccess
+                  ? "Accepted by validators (majority agreement reached)"
+                  : isDisagreed
+                  ? "Validators disagreed (no majority agreement reached)"
+                  : isTimedOut
+                  ? "Timed out awaiting consensus"
                   : `Status: ${status?.statusName || "Waiting for consensus"}`}
               </p>
             </div>
           </div>
 
-          {/* Step 3: Execution Result */}
+          {/* Step 3: State Readback Confirmation */}
           <div className="flex items-start gap-3.5 rounded-2xl border border-black/10 bg-[#fbfbfb] p-3.5">
             <div
               className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-                stage === "complete"
+                isTerminalSuccess
                   ? "bg-[#17c964] text-white"
-                  : stage === "reverted"
+                  : stage === "accepted"
+                  ? "animate-pulse bg-[#0a0a0a] text-white"
+                  : isReverted
                   ? "bg-amber-600 text-white"
-                  : stage === "undetermined"
+                  : isDisagreed
                   ? "bg-sky-600 text-white"
+                  : isTimedOut
+                  ? "bg-orange-500 text-white"
                   : "bg-black/10 text-[#6b6b6b]"
               }`}
             >
               3
             </div>
             <div className="text-xs">
-              <span className="font-semibold text-[#0a0a0a] text-sm block">Receipt Evaluation</span>
+              <span className="font-semibold text-[#0a0a0a] text-sm block">On-Chain State Confirmation</span>
               <p className="text-xs text-[#6b6b6b] mt-0.5 leading-relaxed">
-                {stage === "complete"
-                  ? "Accepted by validators with SUCCESS"
-                  : stage === "reverted"
+                {isTerminalSuccess
+                  ? "State confirmed (storage mutation verified via readback)"
+                  : stage === "accepted"
+                  ? "Accepted by validators; confirming state readback..."
+                  : isReverted
                   ? "Execution reverted (record remains unchanged)"
-                  : stage === "undetermined"
-                  ? "Validators did not achieve quorum (UNDETERMINED)"
-                  : "Awaiting leader receipt and proof confirmation"}
+                  : isDisagreed
+                  ? "Validators disagreed (no state change)"
+                  : isTimedOut
+                  ? "Timed out (state unchanged, safe to retry)"
+                  : "Awaiting final state verification"}
               </p>
             </div>
           </div>
@@ -169,38 +194,66 @@ export const TxPipelineModal: React.FC<TxPipelineModalProps> = ({
           </div>
         )}
 
-        {/* Revert / Error Message Panel */}
-        {stage === "reverted" && revertInfo && (
-          <div className="mt-4 rounded-2xl border border-amber-300 bg-amber-50/90 p-4 text-xs text-amber-950">
-            <div className="flex items-center gap-1.5 font-semibold text-amber-900">
-              <AlertTriangle size={14} />
-              <span>Contract Reverted</span>
+        {/* State Confirmed Success Panel */}
+        {isTerminalSuccess && (
+          <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50/90 p-4 text-xs text-emerald-950">
+            <div className="flex items-center gap-1.5 font-semibold text-emerald-900">
+              <CheckCircle size={14} className="text-emerald-700" />
+              <span>State Confirmed</span>
             </div>
-            <p className="mt-1 text-xs text-amber-900 leading-relaxed">
-              {revertInfo.friendlyMessage}
+            <p className="mt-1 text-xs text-emerald-900 leading-relaxed">
+              Transaction accepted by validators and verified on-chain. Storage mutation is confirmed.
             </p>
-            <div className="mt-2 text-[11px] font-mono text-amber-800 bg-amber-100/60 p-2 rounded-lg">
-              Revert String: &ldquo;{status?.decodedRevert}&rdquo;
-            </div>
           </div>
         )}
 
-        {/* Undetermined Message Panel */}
-        {stage === "undetermined" && (
+        {/* Revert / Error Message Panel */}
+        {isReverted && (
+          <div className="mt-4 rounded-2xl border border-amber-300 bg-amber-50/90 p-4 text-xs text-amber-950">
+            <div className="flex items-center gap-1.5 font-semibold text-amber-900">
+              <AlertTriangle size={14} />
+              <span>Transaction Reverted</span>
+            </div>
+            <p className="mt-1 text-xs text-amber-900 leading-relaxed">
+              {revertInfo?.friendlyMessage || status?.decodedRevert || "Transaction reverted during contract execution."}
+            </p>
+            {status?.decodedRevert && (
+              <div className="mt-2 text-[11px] font-mono text-amber-800 bg-amber-100/60 p-2 rounded-lg">
+                Decoded Revert: &ldquo;{status.decodedRevert}&rdquo;
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Disagreed Message Panel */}
+        {isDisagreed && (
           <div className="mt-4 rounded-2xl border border-sky-200 bg-sky-50/90 p-4 text-xs text-sky-950">
             <div className="flex items-center gap-1.5 font-semibold text-sky-900">
               <AlertCircle size={14} />
-              <span>Consensus Undetermined</span>
+              <span>Validators Disagreed (No State Change)</span>
             </div>
             <p className="mt-1 text-xs text-sky-900 leading-relaxed">
-              Validators evaluated the contract call but did not reach majority quorum on the deterministic output. The state remains unmodified. You may retry.
+              Validators evaluated the contract call but did not achieve majority quorum on the deterministic principle. The on-chain state remains unmodified and safe to retry.
+            </p>
+          </div>
+        )}
+
+        {/* Timed Out Message Panel */}
+        {isTimedOut && (
+          <div className="mt-4 rounded-2xl border border-orange-200 bg-orange-50/90 p-4 text-xs text-orange-950">
+            <div className="flex items-center gap-1.5 font-semibold text-orange-900">
+              <Clock size={14} />
+              <span>Timed Out (State Unchanged, Safe to Retry)</span>
+            </div>
+            <p className="mt-1 text-xs text-orange-900 leading-relaxed">
+              Transaction polling reached the safety limit without confirmation. The contract state was not modified. You may check the explorer or safely retry.
             </p>
           </div>
         )}
 
         {/* Action Buttons */}
         <div className="mt-6 flex items-center justify-end gap-3 border-t border-black/10 pt-4">
-          {onRetry && (stage === "reverted" || stage === "undetermined") && (
+          {onRetry && (isReverted || isDisagreed || isTimedOut) && (
             <button
               type="button"
               onClick={onRetry}

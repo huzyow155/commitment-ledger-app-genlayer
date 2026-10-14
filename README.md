@@ -3,7 +3,7 @@
 Web workbench and ledger interface for the [CommitmentLedger Intelligent Contract](https://github.com/huzyow155/commitment-ledger-genlayer) on GenLayer Studionet (Preview).
 
 [![Production Deployment](https://img.shields.io/badge/Vercel-Production-22c55e.svg)](https://commitment-ledger-app-genlayer.vercel.app)
-[![Contract](https://img.shields.io/badge/Contract-0xdD0d...44E8-blue.svg)](https://explorer-studio.genlayer.com/address/0xdD0d120B50ED65400E8b6a060bB15103B42544E8)
+[![Contract](https://img.shields.io/badge/Contract-0xBaC9...97DB-blue.svg)](https://explorer-studio.genlayer.com/address/0xBaC90bbD20C3F9Ad873B602eC3684EF3145597DB)
 [![Network](https://img.shields.io/badge/Network-Studionet%20(Preview)-amber.svg)](https://explorer-studio.genlayer.com)
 
 **Production URL**: [https://commitment-ledger-app-genlayer.vercel.app](https://commitment-ledger-app-genlayer.vercel.app)
@@ -24,7 +24,7 @@ This repository contains the front-end dApp:
    - **Snapshot-diff ID discovery**: Automatically finds new commitment IDs even if transaction receipts do not return method return values.
    - **Multi-stage consensus pipeline monitor**: Tracks broadcast, validator execution, receipt status, and decodes contract revert payloads.
    - **On-chain reference examples**: Interactive lookup cards pre-loaded with verified Studionet transactions.
-   - **Challenge & Dispute Modal**: Structured modal allowing participants to initiate bounded reconsideration re-reviews during the 120-second challenge window.
+    - **Challenge & Dispute Modal**: Structured modal allowing participants to initiate bounded reconsideration re-reviews during the 600-second challenge window.
 
 ---
 
@@ -54,30 +54,30 @@ Captured directly from the Vercel production deployment ([https://commitment-led
 
 ## Verified On-Chain Evidence
 
-The dApp connects directly to contract `0xdD0d120B50ED65400E8b6a060bB15103B42544E8`. The following cases were executed and accepted by validators on GenLayer Studionet (Preview):
+The dApp connects directly to contract `0xBaC90bbD20C3F9Ad873B602eC3684EF3145597DB`. The following cases were executed and accepted by validators on GenLayer Studionet (Preview):
 
 ### Contract Verification Baseline
 
 | Case | ID | Register Tx | Resolve Tx | Outcome | Source URL & Grounded Quote |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Case P1** (Prospective, OPEN) | `3d2cc5901dad` | [`0x30883fec9e9135929dccc73857b461358606c74c6870ebc274562379c5c6382c`](https://explorer-studio.genlayer.com/tx/0x30883fec9e9135929dccc73857b461358606c74c6870ebc274562379c5c6382c) | None (Pending Maturity) | `null` (status `OPEN`) | `https://en.wikipedia.org/wiki/List_of_spaceflight_launches_in_October%E2%80%93December_2026`<br>Forward-looking commitment maturing 2026-10-16. |
-| **Case A** (Paraphrased Source, KEPT) | `d569fda4e876` | [`0x6899aa4400c42c606b80a570deceec0105179c83dd2e783eae11202ef81eab38`](https://explorer-studio.genlayer.com/tx/0x6899aa4400c42c606b80a570deceec0105179c83dd2e783eae11202ef81eab38) | [`0xd379123921e3f89d9e360ca8c7913d748c82f58f897cf08dd6b1490588eb449f`](https://explorer-studio.genlayer.com/tx/0xd379123921e3f89d9e360ca8c7913d748c82f58f897cf08dd6b1490588eb449f) | `KEPT` | `https://en.wikipedia.org/wiki/Apollo_11`<br>Elements e1, e2, e3 all `SATISFIED`. Evidence SHA-256 fingerprint verified. |
-| **Case B** (Contradicted Action, BROKEN) | `9875a6cdef6d` | [`0xf2ce034fcf4b7b8598330d81944b7f315a18024cc44e64882b872096a1cdbf5a`](https://explorer-studio.genlayer.com/tx/0xf2ce034fcf4b7b8598330d81944b7f315a18024cc44e64882b872096a1cdbf5a) | [`0x0684f543bf5e95f6f1656150a03ca8fa2dbb7409d74e7bfbf3559347a973acbc`](https://explorer-studio.genlayer.com/tx/0x0684f543bf5e95f6f1656150a03ca8fa2dbb7409d74e7bfbf3559347a973acbc) | `BROKEN` | `https://en.wikipedia.org/wiki/Apollo_13`<br>Action e1 marked `NOT_SATISFIED` due to oxygen tank explosion and mission abort. |
-| **Case C** (Condition Omitted, BROKEN) | `ec77538d32e9` | [`0x0b7176db894ee47fb8805667d4d1a38ddce4b3c4917f09a4c735b2e59eb524d2`](https://explorer-studio.genlayer.com/tx/0x0b7176db894ee47fb8805667d4d1a38ddce4b3c4917f09a4c735b2e59eb524d2) | [`0x724098f2fa4c497274c3c29ab60083eed8012adf7866a45b8af36356d72081b5`](https://explorer-studio.genlayer.com/tx/0x724098f2fa4c497274c3c29ab60083eed8012adf7866a45b8af36356d72081b5) | `BROKEN` | `https://en.wikipedia.org/wiki/Apollo_11`<br>Condition "all three astronauts" marked `NOT_SATISFIED` as Collins stayed in orbit. |
-| **Case D** (Missed Deadline, OPEN) | `a0d3d1ba6356` | [`0x019162a6722dbfe94c96050be14ecd773fa8ca8026175f508f668416107e146b`](https://explorer-studio.genlayer.com/tx/0x019162a6722dbfe94c96050be14ecd773fa8ca8026175f508f668416107e146b) | [`0xbfd05f848dd5bf898b9089a877f37edbb4a179fbc971884c5e752f04bec9e177`](https://explorer-studio.genlayer.com/tx/0xbfd05f848dd5bf898b9089a877f37edbb4a179fbc971884c5e752f04bec9e177) | Reverted (`OPEN`) | `https://en.wikipedia.org/wiki/Apollo_11`<br>Reverted with inconclusive evidence, preserving commitment as `OPEN`. |
+| **Case P1** (Prospective, OPEN) | `15c567e44858` | [`0xa2d9c6efc90cfddca01c61e437ce59623dcd757a88b3471f0d48d929389b232d`](https://explorer-studio.genlayer.com/tx/0xa2d9c6efc90cfddca01c61e437ce59623dcd757a88b3471f0d48d929389b232d) | None (Pending Maturity) | `null` (status `OPEN`) | `https://en.wikipedia.org/wiki/List_of_spaceflight_launches_in_October%E2%80%93December_2026`<br>Forward-looking commitment maturing 2026-10-16. |
+| **Case A** (Paraphrased Source, KEPT) | `98e5aceacf75` | [`0xc95736b8b5a6256255d9b178d06d7ba419bd645af44118d8c0f38e5e98db2ca0`](https://explorer-studio.genlayer.com/tx/0xc95736b8b5a6256255d9b178d06d7ba419bd645af44118d8c0f38e5e98db2ca0) | [`0x03d0945985554655360388e96a8ec48c3aafb094b0b6248fdb7768d32d58a88c`](https://explorer-studio.genlayer.com/tx/0x03d0945985554655360388e96a8ec48c3aafb094b0b6248fdb7768d32d58a88c) | `KEPT` (status `FINAL`) | `https://en.wikipedia.org/wiki/Apollo_11`<br>Elements e1, e2 both `SATISFIED`. Evidence SHA-256 fingerprint verified. Marked `FINAL` via [`0x8b616611...`](https://explorer-studio.genlayer.com/tx/0x8b616611a308bb57bff06e6a49df4516b65f086b7f1a510c3a46b2088e8bb5ad). |
+| **Case B** (Contradicted Action, BROKEN) | `cc4b8e0115bc` | [`0x5223bd845ce2db170af423ce1b240acf87814af9cf08d51194f3df1f61f6c018`](https://explorer-studio.genlayer.com/tx/0x5223bd845ce2db170af423ce1b240acf87814af9cf08d51194f3df1f61f6c018) | [`0x4e7bc3d81505717d857e4c619e161ff1ef916120ee4f836438010b28ed8e2947`](https://explorer-studio.genlayer.com/tx/0x4e7bc3d81505717d857e4c619e161ff1ef916120ee4f836438010b28ed8e2947) | `BROKEN` | `https://en.wikipedia.org/wiki/Apollo_13`<br>Action e1 marked `NOT_SATISFIED` due to oxygen tank explosion and mission abort. |
+| **Case C** (Condition Omitted, BROKEN) | `8e8d07e65b36` | [`0x64f4447de40bcc867131e5178fbcff71d5273a8481cd7c29a78b420974b53b11`](https://explorer-studio.genlayer.com/tx/0x64f4447de40bcc867131e5178fbcff71d5273a8481cd7c29a78b420974b53b11) | [`0x997a8ae403c23fe702da3e1605386adad1398dc3ef99fefa9fff3473fa791fac`](https://explorer-studio.genlayer.com/tx/0x997a8ae403c23fe702da3e1605386adad1398dc3ef99fefa9fff3473fa791fac) | `BROKEN` | `https://en.wikipedia.org/wiki/Apollo_11`<br>Condition "all three astronauts" marked `NOT_SATISFIED` as Collins stayed in orbit. |
+| **Case D** (Partial Fulfillment, PARTIAL) | `2b8d6befe470` | [`0xf9dfdb0101b0f5b9d33b3788229712a5db3ad0fcfb219bbdd799f979fe7b789e`](https://explorer-studio.genlayer.com/tx/0xf9dfdb0101b0f5b9d33b3788229712a5db3ad0fcfb219bbdd799f979fe7b789e) | [`0x912cf28959512c89781e571ebe9289c041768dbe96a83a035bb97d60d721303d`](https://explorer-studio.genlayer.com/tx/0x912cf28959512c89781e571ebe9289c041768dbe96a83a035bb97d60d721303d) | `PARTIAL` | `https://en.wikipedia.org/wiki/Apollo_11`<br>Elements e1, e2 SATISFIED; elements e3, e4 UNDETERMINED. |
 
 ### On-Chain Negative Rejection Tests
 
 | Test | Submitted Parameter | Transaction Hash | Status Name | Leader Result | Revert Payload |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| Retrospective Without Ack | `1969-07-20` without ack | [`0xa025fb40394d752a2bf3f79cf0e66d7755daecf8daf8f2b530f001964e41db72`](https://explorer-studio.genlayer.com/tx/0xa025fb40394d752a2bf3f79cf0e66d7755daecf8daf8f2b530f001964e41db72) | `ACCEPTED` | `ERROR` | `"deadline is not after registration date; set retrospective_ack to record a historical claim"` |
-| Invalid Claim Kind | `"UNOFFICIAL"` | [`0xd565b19a8a3f2c453b146d7399741655cbe54be11cc5ccb8b248d9777f0b5bf4`](https://explorer-studio.genlayer.com/tx/0xd565b19a8a3f2c453b146d7399741655cbe54be11cc5ccb8b248d9777f0b5bf4) | `ACCEPTED` | `ERROR` | `"claim_kind must be SELF_DECLARED or THIRD_PARTY_REPORT"` |
-| Premature Resolution | `2099-01-01` before deadline | [`0x4b210b3ab195d8765ece9e8b0ac0bd9f9ed7bc8fc3606bc7c5bc71ec6cd9171e`](https://explorer-studio.genlayer.com/tx/0x4b210b3ab195d8765ece9e8b0ac0bd9f9ed7bc8fc3606bc7c5bc71ec6cd9171e) | `ACCEPTED` | `ERROR` | `"cannot resolve before deadline date"` |
-| Distractor Source Rejection | Falcon 9 article for Apollo | [`0x1d4132b76b6a33f156ea4f66efd32015ea04612cf754666c3b349d89d11e2011`](https://explorer-studio.genlayer.com/tx/0x1d4132b76b6a33f156ea4f66efd32015ea04612cf754666c3b349d89d11e2011) | `ACCEPTED` | `ERROR` | `"source does not match this commitment"` |
-| Non-Allowlisted Domain | `https://github.com/nasa/webb` | [`0xe9a3457e57ff0da66c9fe7a0e569c489c05e6b00cda0bea8f2b98be45376f4a3`](https://explorer-studio.genlayer.com/tx/0xe9a3457e57ff0da66c9fe7a0e569c489c05e6b00cda0bea8f2b98be45376f4a3) | `ACCEPTED` | `ERROR` | `"source_url domain not in authorized allowlist"` |
-| Challenge While Open | Challenge on unadjudicated claim | [`0xb56ab310f04b61d9d9b10ad5d8b1d51252880eb250dec912300af265f7e6d3e4`](https://explorer-studio.genlayer.com/tx/0xb56ab310f04b61d9d9b10ad5d8b1d51252880eb250dec912300af265f7e6d3e4) | `ACCEPTED` | `ERROR` | `"commitment is not in provisional status"` |
-| Finalize While Open | Finalize on unadjudicated claim | [`0x73acc08da9391f0597ef8f27c8911bce5772bf713e141f0a88a45146a3bd8ced`](https://explorer-studio.genlayer.com/tx/0x73acc08da9391f0597ef8f27c8911bce5772bf713e141f0a88a45146a3bd8ced) | `ACCEPTED` | `ERROR` | `"commitment is not in provisional status"` |
-| Early Finalize | Finalize before window expires | [`0xa74ba93acb13951a376e9ff7359b27b9f879800db7cceecdba63865836d83fcd`](https://explorer-studio.genlayer.com/tx/0xa74ba93acb13951a376e9ff7359b27b9f879800db7cceecdba63865836d83fcd) | `ACCEPTED` | `ERROR` | `"challenge window still open"` |
+| Retrospective Without Ack | `1969-07-20` without ack | [`0x323c932da1eecdf57908b1784eb70c89ba7e21ba4864eb1f486948da63cb88d9`](https://explorer-studio.genlayer.com/tx/0x323c932da1eecdf57908b1784eb70c89ba7e21ba4864eb1f486948da63cb88d9) | `ACCEPTED` | `ERROR` | `"deadline is not after registration date; set retrospective_ack to record a historical claim"` |
+| Invalid Claim Kind | `"UNOFFICIAL"` | [`0xddc18683e95ddae37b7ca8cf424fa7ae4da9435b6c9360822606566cb4b6b66c`](https://explorer-studio.genlayer.com/tx/0xddc18683e95ddae37b7ca8cf424fa7ae4da9435b6c9360822606566cb4b6b66c) | `ACCEPTED` | `ERROR` | `"claim_kind must be SELF_DECLARED or THIRD_PARTY_REPORT"` |
+| Premature Resolution | `2099-01-01` before deadline | [`0x89fc1faebf98ec13efea9b3986a7ff779901f46b1c20c027e8006bf888497fae`](https://explorer-studio.genlayer.com/tx/0x89fc1faebf98ec13efea9b3986a7ff779901f46b1c20c027e8006bf888497fae) | `ACCEPTED` | `ERROR` | `"cannot resolve before deadline date"` |
+| Distractor Source Rejection | Falcon 9 article for Apollo | [`0xdc86da7efb1d5c2254d39ecf1b8a5bba62ef1ec9fcbcfd5069929283e3518774`](https://explorer-studio.genlayer.com/tx/0xdc86da7efb1d5c2254d39ecf1b8a5bba62ef1ec9fcbcfd5069929283e3518774) | `ACCEPTED` | `ERROR` | `"source does not match this commitment"` |
+| Non-Allowlisted Domain | `https://github.com/nasa/webb` | [`0xf6d53e22b3a6a0e1c4c4acbc17dcacfaadc6ea67d681510c6a012d50ca7251b3`](https://explorer-studio.genlayer.com/tx/0xf6d53e22b3a6a0e1c4c4acbc17dcacfaadc6ea67d681510c6a012d50ca7251b3) | `ACCEPTED` | `ERROR` | `"source_url domain not in authorized allowlist"` |
+| Challenge While Open | Challenge on unadjudicated claim | [`0x78564fe06d644d673f3cff7efdb0df6a2a07d3fa8f01c2fae6fe0a37c598e3b4`](https://explorer-studio.genlayer.com/tx/0x78564fe06d644d673f3cff7efdb0df6a2a07d3fa8f01c2fae6fe0a37c598e3b4) | `ACCEPTED` | `ERROR` | `"commitment is not in provisional status"` |
+| Finalize While Open | Finalize on unadjudicated claim | [`0x0f2ad28a478330777fa918b9911e3b5e408ec22e4eb1eebfe46e9df2ae8332c1`](https://explorer-studio.genlayer.com/tx/0x0f2ad28a478330777fa918b9911e3b5e408ec22e4eb1eebfe46e9df2ae8332c1) | `ACCEPTED` | `ERROR` | `"commitment is not in provisional status"` |
+| Early Finalize (Window Open) | Finalize before 600s window expires | [`0x63e292dc46966d58aa7bba49fb28c7737a9e9744f697bebca688d90d3cc7480a`](https://explorer-studio.genlayer.com/tx/0x63e292dc46966d58aa7bba49fb28c7737a9e9744f697bebca688d90d3cc7480a) | `ACCEPTED` | `ERROR` | `"challenge window still open"` |
 
 ---
 
@@ -121,7 +121,7 @@ The dApp connects directly to contract `0xdD0d120B50ED65400E8b6a060bB15103B42544
 +---------------------------------------------------------------------------------------+
 |                                GENLAYER STUDIONET                                     |
 +---------------------------------------------------------------------------------------+
-|  Intelligent Contract: 0xdD0d120B50ED65400E8b6a060bB15103B42544E8 (v3.0.0)            |
+|  Intelligent Contract: 0xBaC90bbD20C3F9Ad873B602eC3684EF3145597DB (v3.1.0)            |
 |    │                                                                                  |
 |    ├── register_commitment(raw_text, deadline_hint, claim_kind, retrospective_ack)    |
 |    │     └── Temporal check: PROSPECTIVE vs RETROSPECTIVE -> Stores as OPEN           |
@@ -129,7 +129,7 @@ The dApp connects directly to contract `0xdD0d120B50ED65400E8b6a060bB15103B42544
 |    ├── submit_resolution(commitment_id, source_url)                                   |
 |    │     ├── Window selection & segmentation -> sha256 evidence fingerprint          |
 |    │     ├── Element-based evaluation -> Conjunction rule                             |
-|    │     └── Sets status PROVISIONAL with 120s challenge window                       |
+|    │     └── Sets status PROVISIONAL with 600s challenge window                       |
 |    │                                                                                  |
 |    ├── challenge_resolution(commitment_id, reason_code, rationale, countervailing_url)|
 |    │     └── Reconsideration under strict grounding -> WITHDRAWN if ungrounded        |
@@ -197,10 +197,10 @@ commitment-ledger-app-genlayer/
 
 The file `contracts-reference/CommitmentLedger.py` is byte-identical to the contract deployed on Studionet:
 
-- **Expected SHA-256**: `e14342dac8a0bdb983d4796557a59d3ae0e47e0715b9290d46cf3986cae1ac9c`
+- **Expected SHA-256**: `9380175f322387696259a522483239be209d58b8e21fd4928cadf4ab46702e0e`
 - **Verification Command**:
   ```bash
-  node -e "const crypto = require('crypto'), fs = require('fs'); const hash = crypto.createHash('sha256').update(fs.readFileSync('contracts-reference/CommitmentLedger.py')).digest('hex'); console.log('SHA-256:', hash); process.exit(hash === 'e14342dac8a0bdb983d4796557a59d3ae0e47e0715b9290d46cf3986cae1ac9c' ? 0 : 1);"
+  node -e "const crypto = require('crypto'), fs = require('fs'); const hash = crypto.createHash('sha256').update(fs.readFileSync('contracts-reference/CommitmentLedger.py')).digest('hex'); console.log('SHA-256:', hash); process.exit(hash === '9380175f322387696259a522483239be209d58b8e21fd4928cadf4ab46702e0e' ? 0 : 1);"
   ```
 
 ---
@@ -211,6 +211,7 @@ The following contracts were deployed during development and have been supersede
 
 | Address | Deploy Transaction Hash | Superseded Reason |
 | :--- | :--- | :--- |
+| `0xdD0d120B50ED65400E8b6a060bB15103B42544E8` | [`0x9ddb3a96c40d222c8e4ac1b781029a3b6c33937796aa1348a060f4ea9ba14467`](https://explorer-studio.genlayer.com/tx/0x9ddb3a96c40d222c8e4ac1b781029a3b6c33937796aa1348a060f4ea9ba14467) | Superseded by v3.1.0: aligned fingerprinting across network nodes and standardized status naming. |
 | `0x3155c7c80f4334968d61E1b79f74EB864CF7cb08` | [`0x1aff7096cb2283f0e60ea74f4249d5d319f650177d9bee7a8ae798b7cf4c970a`](https://explorer-studio.genlayer.com/tx/0x1aff7096cb2283f0e60ea74f4249d5d319f650177d9bee7a8ae798b7cf4c970a) | Superseded by v3.0.0: answered steward review with temporal authenticity, element-based adjudication of full original statement, claim kind/identity unverified, bounded challenge & reconsideration state machine, and sha256 evidence fingerprints. |
 | `0x0A4Dc27c06520EA1EbcAEAFBF94f90b2AbDc6aa1` | [`0x9b738652bceac390143a01f7dcf7ca24b7a92714430d950c34f9ae2936de4f52`](https://explorer-studio.genlayer.com/tx/0x9b738652bceac390143a01f7dcf7ca24b7a92714430d950c34f9ae2936de4f52) | Superseded by v2.2.0: could write PARTIAL when model returned no valid outcome. |
 | `0x8a5269aa724E77D799b3F0dbbaeee7683157f52d` | [`0xc8461e53602c7cc610eab8d99bb8f277b388debb1366736529f90439ba8e4a6b`](https://explorer-studio.genlayer.com/tx/0xc8461e53602c7cc610eab8d99bb8f277b388debb1366736529f90439ba8e4a6b) | Superseded by v2.1.0: removed ungrounded fallback and enforced mandatory calendar date deadlines. |

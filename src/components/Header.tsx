@@ -197,7 +197,7 @@ export const Header: React.FC = () => {
               variant={useOceanTheme ? "ocean" : "editorial"}
             />
             <span>CommitmentLedger</span>
-            <sup>v2.2</sup>
+            <sup>v3.1</sup>
           </Link>
         </div>
 
@@ -233,7 +233,8 @@ export const Header: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowWalletMenu(!showWalletMenu)}
-              className="wallet-pill-trigger inline-flex items-center gap-1 sm:gap-1.5 rounded-full bg-white/92 border border-black/10 px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs font-medium text-[#0a0a0a] shadow-sm transition hover:bg-white"
+              title="Studionet-only throwaway key. Preview network, no real value."
+              className="wallet-pill-trigger inline-flex items-center gap-1 sm:gap-1.5 rounded-full bg-white/92 border border-black/10 px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs font-medium text-[#0a0a0a] shadow-sm transition hover:bg-white cursor-pointer"
             >
               <Key size={12} className="text-[#0a0a0a] shrink-0" />
               <span className="font-mono tracking-tight text-[11px] sm:text-xs">
@@ -242,18 +243,21 @@ export const Header: React.FC = () => {
             </button>
 
             {showWalletMenu && (
-              <div className="absolute right-0 mt-2.5 w-80 rounded-2xl border border-black/10 bg-white p-5 shadow-2xl z-50 text-left">
+              <div className="absolute right-0 mt-2.5 w-80 sm:w-88 rounded-2xl border border-black/10 bg-white p-5 shadow-2xl z-50 text-left">
                 <div className="border-b border-black/10 pb-3.5">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-semibold uppercase tracking-wider text-[#0a0a0a]">
-                      Throwaway Dev Account
+                      Dev Account
                     </span>
-                    <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-800 border border-emerald-200">
-                      Studionet
+                    <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-900 border border-amber-200">
+                      Preview Network
                     </span>
                   </div>
-                  <p className="mt-1.5 text-xs text-[#6b6b6b] leading-relaxed">
-                    Ephemeral key for Studionet consensus transactions. Do not put real funds or reuse a personal key.
+                  <div className="mt-2.5 rounded-xl bg-amber-50/90 border border-amber-300 p-2.5 text-xs text-amber-950 font-medium leading-relaxed">
+                    Studionet-only throwaway key. Preview network, no real value.
+                  </div>
+                  <p className="mt-2 text-xs text-[#6b6b6b] leading-relaxed">
+                    This ephemeral private key is generated in your browser and stored in localStorage. It is used exclusively for Studionet preview consensus transactions. Never import private keys holding real assets with monetary value.
                   </p>
                   {address && (
                     <div className="mt-2.5 flex items-center justify-between rounded-xl bg-[#f8f8f8] p-2.5 font-mono text-xs text-[#0a0a0a] border border-black/5">

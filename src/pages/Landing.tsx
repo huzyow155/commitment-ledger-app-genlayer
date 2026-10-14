@@ -980,7 +980,7 @@ console.log(JSON.parse(recordJson));`;
             <span className="wordmark">
               <BrandLogoMark className="wordmark-logo wordmark-logo-sm" variant="editorial" />
               <span style={{ fontSize: "24px" }}>CommitmentLedger</span>
-              <sup>v2.2</sup>
+              <sup>v3.1</sup>
             </span>
             <span>·</span>
             <span>GenLayer Studionet (Preview)</span>

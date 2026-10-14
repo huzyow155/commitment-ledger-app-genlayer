@@ -169,7 +169,7 @@ export const REVERT_MAP: Record<string, RevertInfo> = {
     category: "state",
   },
   "challenge window has expired": {
-    friendlyMessage: "The 24-hour challenge reconsideration window for this provisional decision has elapsed.",
+    friendlyMessage: "The 600-second challenge reconsideration window for this provisional decision has elapsed.",
     severity: "warning",
     commitmentStaysOpen: false,
     category: "state",

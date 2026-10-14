@@ -13,8 +13,9 @@
     "scan:banned": "node scripts/scan_banned.mjs",
     "scan:secrets": "node scripts/scan_secrets.mjs",
     "check:address": "node scripts/check_address_consistency.mjs",
+    "check:reference": "node scripts/check_reference_contract.mjs",
     "verify:bundle": "node scripts/verify_bundle.mjs",
-    "check": "npm run build && npm run test && npm run scan:ascii && npm run scan:banned && npm run scan:secrets && npm run check:address && npm run verify:bundle"
+    "check": "npm run check:reference && npm run build && npm run test && npm run scan:ascii && npm run scan:banned && npm run scan:secrets && npm run check:address && npm run verify:bundle"
   },
   "dependencies": {
     "genlayer-js": "^1.1.8",

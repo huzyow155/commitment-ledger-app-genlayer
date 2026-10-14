@@ -29,6 +29,16 @@ import {
 } from "../services/contractService";
 import type { CommitmentRecord } from "../lib/outcome";
 import {
+  type PipelineStage,
+  isAcceptedReceiptStatus,
+  isDisagreedReceiptStatus,
+  isTimeoutReceiptStatus,
+  verifyRegistrationReadback,
+  verifyResolutionReadback,
+  verifyChallengeReadback,
+  verifyFinalizeReadback,
+} from "../lib/txLifecycle";
+import {
   validateRawText,
   validateDeadlineDate,
   validateSourceUrl,
@@ -63,9 +73,7 @@ export const Workbench: React.FC = () => {
   // Pipeline modal state
   const [pipelineOpen, setPipelineOpen] = useState(false);
   const [pipelineStatus, setPipelineStatus] = useState<TxStatusReport | null>(null);
-  const [pipelineStage, setPipelineStage] = useState<
-    "signing" | "submitting" | "consensus" | "complete" | "reverted" | "undetermined"
-  >("signing");
+  const [pipelineStage, setPipelineStage] = useState<PipelineStage>("signing");
   const [pipelineTitle, setPipelineTitle] = useState("Consensus Transaction");
 
   // Form states: Register
@@ -148,10 +156,10 @@ export const Workbench: React.FC = () => {
     if (activeTab === "examples" && !examplesData.caseA && !examplesData.loading) {
       setExamplesData((prev) => ({ ...prev, loading: true, error: null }));
       Promise.all([
-        getCommitment("d1bf80127e98"), // Case P1 (Prospective, OPEN)
-        getCommitment("80e4e5b412bf"), // Case A (Apollo 11 KEPT)
-        getCommitment("9875a6cdef6d"), // Case B (Apollo 13 BROKEN)
-        getCommitment("ec77538d32e9"), // Case C (Condition Omitted, BROKEN)
+        getCommitment("15c567e44858"), // Case P1 (Prospective, OPEN)
+        getCommitment("98e5aceacf75"), // Case A (Apollo 11 KEPT)
+        getCommitment("cc4b8e0115bc"), // Case B (Apollo 13 BROKEN)
+        getCommitment("8e8d07e65b36"), // Case C (Condition Omitted, BROKEN)
       ])
         .then(([resP1, resA, resB, resC]) => {
           setExamplesData({
@@ -189,40 +197,78 @@ export const Workbench: React.FC = () => {
     setNewlyCreatedCommitment(null);
 
     try {
-      setPipelineStage("consensus");
-      const { commitmentId } = await registerCommitmentFlow(
+      setPipelineStage("submitting");
+      const { commitmentId, report } = await registerCommitmentFlow(
         account,
         registerText,
         registerDeadline,
         claimKind,
         retrospectiveAck,
-        (report) => {
-          setPipelineStatus(report);
-          if (report.statusName === "ACCEPTED") {
-            if (report.leaderResult === "SUCCESS") {
-              setPipelineStage("complete");
-            } else {
+        (rep) => {
+          setPipelineStatus(rep);
+          if (isDisagreedReceiptStatus(rep.statusName)) {
+            setPipelineStage("disagreed");
+          } else if (isTimeoutReceiptStatus(rep.statusName)) {
+            setPipelineStage("timed_out");
+          } else if (isAcceptedReceiptStatus(rep.statusName)) {
+            if (rep.leaderResult === "SUCCESS") {
+              setPipelineStage("accepted");
+            } else if (rep.leaderResult === "ERROR") {
               setPipelineStage("reverted");
+            } else {
+              setPipelineStage("consensus");
             }
-          } else if (report.isMajorityDisagreed) {
-            setPipelineStage("undetermined");
+          } else {
+            setPipelineStage("consensus");
           }
         }
       );
 
-      // Read back the fresh record
-      const freshRecord = await getCommitment(commitmentId);
-      if (freshRecord.ok && freshRecord.data) {
-        setNewlyCreatedCommitment(freshRecord.data);
+      if (isDisagreedReceiptStatus(report.statusName)) {
+        setPipelineStage("disagreed");
+        return;
       }
-      setRegisterText("");
-      refreshMyCommitments();
+      if (isTimeoutReceiptStatus(report.statusName)) {
+        setPipelineStage("timed_out");
+        return;
+      }
+      if (!isAcceptedReceiptStatus(report.statusName) || report.leaderResult === "ERROR") {
+        setPipelineStage("reverted");
+        return;
+      }
+
+      // Step 3: On-Chain State Confirmation via Readback
+      setPipelineStage("accepted");
+      const readbackRes = await verifyRegistrationReadback(
+        commitmentId,
+        registerText,
+        getCommitment
+      );
+
+      if (readbackRes.confirmed && readbackRes.record) {
+        setPipelineStage("state_confirmed");
+        setNewlyCreatedCommitment(readbackRes.record);
+        setRegisterText("");
+        refreshMyCommitments();
+      } else {
+        setPipelineStage("reverted");
+        setPipelineStatus((prev) => ({
+          txHash: prev?.txHash || report.txHash,
+          statusName: "READBACK_FAILED",
+          decodedRevert: readbackRes.error || "Failed to confirm registered record on-chain.",
+        }));
+      }
     } catch (err: unknown) {
-      setPipelineStage("reverted");
+      const errMsg = err instanceof Error ? err.message : String(err);
+      if (errMsg.includes("timed out") || errMsg.includes("TIMEOUT")) {
+        setPipelineStage("timed_out");
+      } else {
+        setPipelineStage("reverted");
+      }
       setPipelineStatus((prev) => ({
         txHash: prev?.txHash || "",
         statusName: "REVERTED",
-        decodedRevert: err instanceof Error ? err.message : String(err),
+        decodedRevert: errMsg,
       }));
     }
   };
@@ -239,41 +285,74 @@ export const Workbench: React.FC = () => {
     setResolvedRecord(null);
 
     try {
-      setPipelineStage("consensus");
+      setPipelineStage("submitting");
       const { report } = await submitResolutionFlow(
         account,
         resolveCommitmentId.trim(),
         resolveSourceUrl.trim(),
         (rep) => {
           setPipelineStatus(rep);
-          if (rep.statusName === "ACCEPTED") {
+          if (isDisagreedReceiptStatus(rep.statusName)) {
+            setPipelineStage("disagreed");
+          } else if (isTimeoutReceiptStatus(rep.statusName)) {
+            setPipelineStage("timed_out");
+          } else if (isAcceptedReceiptStatus(rep.statusName)) {
             if (rep.leaderResult === "SUCCESS") {
-              setPipelineStage("complete");
-            } else {
+              setPipelineStage("accepted");
+            } else if (rep.leaderResult === "ERROR") {
               setPipelineStage("reverted");
+            } else {
+              setPipelineStage("consensus");
             }
-          } else if (rep.isMajorityDisagreed) {
-            setPipelineStage("undetermined");
+          } else {
+            setPipelineStage("consensus");
           }
         }
       );
 
-      if (report.leaderResult === "SUCCESS") {
-        setPipelineStage("complete");
-        const fresh = await getCommitment(resolveCommitmentId.trim());
-        if (fresh.ok && fresh.data) {
-          setResolvedRecord(fresh.data);
-        }
+      if (isDisagreedReceiptStatus(report.statusName)) {
+        setPipelineStage("disagreed");
+        return;
+      }
+      if (isTimeoutReceiptStatus(report.statusName)) {
+        setPipelineStage("timed_out");
+        return;
+      }
+      if (!isAcceptedReceiptStatus(report.statusName) || report.leaderResult === "ERROR") {
+        setPipelineStage("reverted");
+        return;
+      }
+
+      // Step 3: On-Chain State Confirmation via Readback
+      setPipelineStage("accepted");
+      const readbackRes = await verifyResolutionReadback(
+        resolveCommitmentId.trim(),
+        getCommitment
+      );
+
+      if (readbackRes.confirmed && readbackRes.record) {
+        setPipelineStage("state_confirmed");
+        setResolvedRecord(readbackRes.record);
+        refreshMyCommitments();
+      } else {
+        setPipelineStage("reverted");
+        setPipelineStatus((prev) => ({
+          txHash: prev?.txHash || report.txHash,
+          statusName: "READBACK_FAILED",
+          decodedRevert: readbackRes.error || "Failed to confirm resolution mutation on-chain.",
+        }));
+      }
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : String(err);
+      if (errMsg.includes("timed out") || errMsg.includes("TIMEOUT")) {
+        setPipelineStage("timed_out");
       } else {
         setPipelineStage("reverted");
       }
-      refreshMyCommitments();
-    } catch (err: unknown) {
-      setPipelineStage("reverted");
       setPipelineStatus((prev) => ({
         txHash: prev?.txHash || "",
         statusName: "REVERTED",
-        decodedRevert: err instanceof Error ? err.message : String(err),
+        decodedRevert: errMsg,
       }));
     }
   };
@@ -290,7 +369,10 @@ export const Workbench: React.FC = () => {
     setPipelineOpen(true);
 
     try {
-      setPipelineStage("consensus");
+      const preRec = await getCommitment(challengeCid.trim());
+      const initialCount = preRec.ok && preRec.data?.decisions ? preRec.data.decisions.length : 0;
+
+      setPipelineStage("submitting");
       const { report } = await challengeResolutionFlow(
         account,
         challengeCid.trim(),
@@ -298,30 +380,67 @@ export const Workbench: React.FC = () => {
         challengeSourceUrl.trim(),
         (rep) => {
           setPipelineStatus(rep);
-          if (rep.statusName === "ACCEPTED") {
+          if (isDisagreedReceiptStatus(rep.statusName)) {
+            setPipelineStage("disagreed");
+          } else if (isTimeoutReceiptStatus(rep.statusName)) {
+            setPipelineStage("timed_out");
+          } else if (isAcceptedReceiptStatus(rep.statusName)) {
             if (rep.leaderResult === "SUCCESS") {
-              setPipelineStage("complete");
-            } else {
+              setPipelineStage("accepted");
+            } else if (rep.leaderResult === "ERROR") {
               setPipelineStage("reverted");
+            } else {
+              setPipelineStage("consensus");
             }
-          } else if (rep.isMajorityDisagreed) {
-            setPipelineStage("undetermined");
+          } else {
+            setPipelineStage("consensus");
           }
         }
       );
 
-      if (report.leaderResult === "SUCCESS") {
-        setPipelineStage("complete");
+      if (isDisagreedReceiptStatus(report.statusName)) {
+        setPipelineStage("disagreed");
+        return;
+      }
+      if (isTimeoutReceiptStatus(report.statusName)) {
+        setPipelineStage("timed_out");
+        return;
+      }
+      if (!isAcceptedReceiptStatus(report.statusName) || report.leaderResult === "ERROR") {
+        setPipelineStage("reverted");
+        return;
+      }
+
+      // Step 3: On-Chain State Confirmation via Readback
+      setPipelineStage("accepted");
+      const readbackRes = await verifyChallengeReadback(
+        challengeCid.trim(),
+        initialCount,
+        getCommitment
+      );
+
+      if (readbackRes.confirmed) {
+        setPipelineStage("state_confirmed");
         refreshMyCommitments();
       } else {
         setPipelineStage("reverted");
+        setPipelineStatus((prev) => ({
+          txHash: prev?.txHash || report.txHash,
+          statusName: "READBACK_FAILED",
+          decodedRevert: readbackRes.error || "Failed to confirm challenge decision increase on-chain.",
+        }));
       }
     } catch (err: unknown) {
-      setPipelineStage("reverted");
+      const errMsg = err instanceof Error ? err.message : String(err);
+      if (errMsg.includes("timed out") || errMsg.includes("TIMEOUT")) {
+        setPipelineStage("timed_out");
+      } else {
+        setPipelineStage("reverted");
+      }
       setPipelineStatus((prev) => ({
         txHash: prev?.txHash || "",
         statusName: "REVERTED",
-        decodedRevert: err instanceof Error ? err.message : String(err),
+        decodedRevert: errMsg,
       }));
     }
   };
@@ -334,36 +453,69 @@ export const Workbench: React.FC = () => {
     setPipelineOpen(true);
 
     try {
-      setPipelineStage("consensus");
+      setPipelineStage("submitting");
       const { report } = await finalizeResolutionFlow(
         account,
         commitmentId.trim(),
         (rep) => {
           setPipelineStatus(rep);
-          if (rep.statusName === "ACCEPTED") {
+          if (isDisagreedReceiptStatus(rep.statusName)) {
+            setPipelineStage("disagreed");
+          } else if (isTimeoutReceiptStatus(rep.statusName)) {
+            setPipelineStage("timed_out");
+          } else if (isAcceptedReceiptStatus(rep.statusName)) {
             if (rep.leaderResult === "SUCCESS") {
-              setPipelineStage("complete");
-            } else {
+              setPipelineStage("accepted");
+            } else if (rep.leaderResult === "ERROR") {
               setPipelineStage("reverted");
+            } else {
+              setPipelineStage("consensus");
             }
-          } else if (rep.isMajorityDisagreed) {
-            setPipelineStage("undetermined");
+          } else {
+            setPipelineStage("consensus");
           }
         }
       );
 
-      if (report.leaderResult === "SUCCESS") {
-        setPipelineStage("complete");
+      if (isDisagreedReceiptStatus(report.statusName)) {
+        setPipelineStage("disagreed");
+        return;
+      }
+      if (isTimeoutReceiptStatus(report.statusName)) {
+        setPipelineStage("timed_out");
+        return;
+      }
+      if (!isAcceptedReceiptStatus(report.statusName) || report.leaderResult === "ERROR") {
+        setPipelineStage("reverted");
+        return;
+      }
+
+      // Step 3: On-Chain State Confirmation via Readback
+      setPipelineStage("accepted");
+      const readbackRes = await verifyFinalizeReadback(commitmentId.trim(), getCommitment);
+
+      if (readbackRes.confirmed) {
+        setPipelineStage("state_confirmed");
         refreshMyCommitments();
       } else {
         setPipelineStage("reverted");
+        setPipelineStatus((prev) => ({
+          txHash: prev?.txHash || report.txHash,
+          statusName: "READBACK_FAILED",
+          decodedRevert: readbackRes.error || "Failed to confirm FINAL status on-chain.",
+        }));
       }
     } catch (err: unknown) {
-      setPipelineStage("reverted");
+      const errMsg = err instanceof Error ? err.message : String(err);
+      if (errMsg.includes("timed out") || errMsg.includes("TIMEOUT")) {
+        setPipelineStage("timed_out");
+      } else {
+        setPipelineStage("reverted");
+      }
       setPipelineStatus((prev) => ({
         txHash: prev?.txHash || "",
         statusName: "REVERTED",
-        decodedRevert: err instanceof Error ? err.message : String(err),
+        decodedRevert: errMsg,
       }));
     }
   };
@@ -580,7 +732,7 @@ export const Workbench: React.FC = () => {
 
                     {/* Phrasing Hint */}
                     <div className="mt-6 rounded-2xl border border-black/10 bg-[#fbfbfb] p-4 text-xs text-[#6b6b6b] leading-relaxed">
-                      <strong className="text-[#0a0a0a]">Adjudication structure:</strong> The v3.0.0 contract decomposes this statement into discrete action, condition, and deadline elements. Every element must be grounded in an explicit numbered passage to qualify for a conclusive outcome.
+                      <strong className="text-[#0a0a0a]">Adjudication structure:</strong> The v3.1.0 contract decomposes this statement into discrete action, condition, and deadline elements. Every element must be grounded in an explicit numbered passage to qualify for a conclusive outcome.
                     </div>
 
                     {/* Submit Button */}
@@ -667,7 +819,7 @@ export const Workbench: React.FC = () => {
                         type="text"
                         value={resolveCommitmentId}
                         onChange={(e) => setResolveCommitmentId(e.target.value)}
-                        placeholder="e.g. 80e4e5b412bf"
+                        placeholder="e.g. 98e5aceacf75"
                         className="w-full rounded-2xl border border-black/10 bg-white p-3.5 font-mono text-sm text-[#0a0a0a] focus:border-[#0a0a0a] focus:outline-none transition"
                       />
                     </div>
@@ -805,7 +957,7 @@ export const Workbench: React.FC = () => {
                       type="text"
                       value={lookupId}
                       onChange={(e) => setLookupId(e.target.value)}
-                      placeholder="Enter 12-hex commitment ID (e.g. 80e4e5b412bf)"
+                      placeholder="Enter 12-hex commitment ID (e.g. 98e5aceacf75)"
                       className="flex-1 rounded-2xl border border-black/10 bg-white p-3.5 font-mono text-sm text-[#0a0a0a] focus:border-[#0a0a0a] focus:outline-none transition"
                     />
                     <button

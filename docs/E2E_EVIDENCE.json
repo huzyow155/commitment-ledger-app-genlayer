@@ -1,68 +1,186 @@
 {
   "network": "GenLayer Studionet (Preview)",
   "chainId": 61999,
-  "runnerAddress": "0xCE99a5b07325130bea57D893d13eB8A882fBe7ff",
-  "timestamp": "2026-10-12T03:23:06.017Z",
+  "runnerAddress": "0x957Dc59cC295C2392D058b2757F170Ee71716860",
+  "timestamp": "2026-10-14T11:58:43.528Z",
   "flow": {
-    "commitmentId": "2cb7fcbc7999",
-    "registerTx": "0x0019c0d7d4df260e52cb6525e068e8eddfa47fa52361e63836e15641b7afb4c6",
+    "commitmentId": "129fb697d04f",
+    "registerTx": "0x1ac28ff54831b25f406a76d0922151899ee9d73aedd35a623b567a13ad4d9b46",
     "registerRetries": 0,
     "initialRecord": {
-      "schema_version": "2.2.0",
-      "commitment_id": "2cb7fcbc7999",
-      "registrant": "0xCE99a5b07325130bea57D893d13eB8A882fBe7ff",
-      "raw_text": "The Apollo 11 lunar module will touch down on the lunar surface before 1970. (E2E run 1791775386017)",
+      "schema_version": "3.1.0",
+      "commitment_id": "129fb697d04f",
+      "registrant": "0x957Dc59cC295C2392D058b2757F170Ee71716860",
+      "raw_text": "The Apollo 11 lunar module will touch down on the lunar surface before 1970. (E2E run 1791979123528)",
       "subject": "apollo 11 lunar module",
       "action": "touch down on the lunar surface before 1970",
       "deadline_hint": "1970-01-01",
-      "created_round": 9,
+      "registered_at": "2026-10-14T11:57:39Z",
+      "registered_at_ts": 1791979059,
+      "registered_date": "2026-10-14",
+      "registration_class": "RETROSPECTIVE",
+      "record_class": "HISTORICAL_ANALYSIS",
+      "claim_kind": "THIRD_PARTY_REPORT",
+      "identity_verified": false,
+      "created_round": 12,
       "status": "OPEN",
+      "challenge_deadline_ts": null,
+      "current_decision_index": -1,
+      "decisions": [],
       "outcome": null,
       "source_url": null,
       "resolution_quote": null,
       "match_confirmed": false,
       "resolved_at": null,
-      "resolver": null
+      "resolver": null,
+      "finalized_at": null
     },
-    "resolveTx": "0x30e08628b0d0441915b65df5dcfa9417021db95b4b7dfcb6ba3c66c8ec0c2854",
-    "resolveRetries": 2,
+    "resolveTx": "0xd82f19e6c4e3483894c0482a3fb8fdd63f45e2751718d0d3b873725f22f29a60",
+    "resolveRetries": 0,
     "resolveReceipt": {
-      "txHash": "0x30e08628b0d0441915b65df5dcfa9417021db95b4b7dfcb6ba3c66c8ec0c2854",
+      "txHash": "0xd82f19e6c4e3483894c0482a3fb8fdd63f45e2751718d0d3b873725f22f29a60",
       "statusName": "ACCEPTED",
       "leaderResult": "SUCCESS",
       "decodedRevert": "",
       "isMajorityDisagreed": false
     },
     "finalRecord": {
-      "schema_version": "2.2.0",
-      "commitment_id": "2cb7fcbc7999",
-      "registrant": "0xCE99a5b07325130bea57D893d13eB8A882fBe7ff",
-      "raw_text": "The Apollo 11 lunar module will touch down on the lunar surface before 1970. (E2E run 1791775386017)",
+      "schema_version": "3.1.0",
+      "commitment_id": "129fb697d04f",
+      "registrant": "0x957Dc59cC295C2392D058b2757F170Ee71716860",
+      "raw_text": "The Apollo 11 lunar module will touch down on the lunar surface before 1970. (E2E run 1791979123528)",
       "subject": "apollo 11 lunar module",
       "action": "touch down on the lunar surface before 1970",
       "deadline_hint": "1970-01-01",
-      "created_round": 9,
-      "status": "RESOLVED",
+      "registered_at": "2026-10-14T11:57:39Z",
+      "registered_at_ts": 1791979059,
+      "registered_date": "2026-10-14",
+      "registration_class": "RETROSPECTIVE",
+      "record_class": "HISTORICAL_ANALYSIS",
+      "claim_kind": "THIRD_PARTY_REPORT",
+      "identity_verified": false,
+      "created_round": 12,
+      "status": "PROVISIONAL",
+      "challenge_deadline_ts": 1791979684,
+      "current_decision_index": 0,
+      "decisions": [
+        {
+          "n": 1,
+          "kind": "INITIAL",
+          "challenge_reason": null,
+          "resolver": "0x957Dc59cC295C2392D058b2757F170Ee71716860",
+          "decided_at": "2026-10-14T11:58:04Z",
+          "decided_at_ts": 1791979084,
+          "source_url": "https://en.wikipedia.org/wiki/Apollo_11",
+          "outcome": "KEPT",
+          "elements": [
+            {
+              "id": "e1",
+              "kind": "ACTION",
+              "label": "The Apollo 11 lunar module touches down on the lunar surface",
+              "status": "SATISFIED",
+              "passage_ids": [
+                4
+              ]
+            },
+            {
+              "id": "e2",
+              "kind": "DEADLINE",
+              "label": "completed on or before 1970-01-01",
+              "status": "SATISFIED",
+              "passage_ids": [
+                4
+              ]
+            }
+          ],
+          "passages": [
+            {
+              "id": 4,
+              "text": "After a three-day transit, Armstrong and Aldrin descended to the surface aboard the LM Eagle, landing in the Sea of Tranquility (Mare Tranquillitatis) on July 20 at 20:17 UTC while Collins remained in lunar orbit aboard the CM Columbia.",
+              "sha256": "e2a8a826624153d845f74f2112b6adae47bbf744d3e950517b79fb259ea927d3"
+            }
+          ],
+          "evidence_sha256": "9cf487193d8c41c44a19c7a861c7808f39ceedd0b3169551854a92c82d6b9b00",
+          "inspected_text_sha256": "6a34c8d5cc4e3d901e67dd1c147e88418611638dcedebfca097b5580e7dc512f",
+          "source_chars_total": 139256,
+          "source_chars_inspected": 10777,
+          "coverage": "SELECTED_WINDOWS",
+          "fetch_method": "web.render",
+          "presented_segment_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46
+          ],
+          "presented_segments_count": 46,
+          "truncated_at": false,
+          "budget_chars_used": 10777,
+          "review_result": null
+        }
+      ],
       "outcome": "KEPT",
       "source_url": "https://en.wikipedia.org/wiki/Apollo_11",
-      "resolution_quote": "Armstrong and Aldrin descended to the surface aboard the LM Eagle, landing in the Sea of Tranquility (Mare Tranquillitatis) on July 20 at 20:17 UTC",
+      "resolution_quote": "After a three-day transit, Armstrong and Aldrin descended to the surface aboard the LM Eagle, landing in the Sea of Tranquility (Mare Tranquillitatis) on July 20 at 20:17 UTC while Collins remained in lunar orbit aboard the CM Columbia.",
       "match_confirmed": true,
-      "resolved_at": "2026-10-12T03:26:57.314265Z",
-      "resolver": "0xCE99a5b07325130bea57D893d13eB8A882fBe7ff"
+      "resolved_at": "2026-10-14T11:58:04Z",
+      "resolver": "0x957Dc59cC295C2392D058b2757F170Ee71716860",
+      "finalized_at": null
     }
   },
   "negatives": {
     "nonAllowlistedDomain": {
-      "txHash": "0x0b377fbaf1221fb74004b7d35abb1004043e99f218a485a77363c1cdb3fcaefb",
+      "txHash": "0xf6d53e22b3a6a0e1c4c4acbc17dcacfaadc6ea67d681510c6a012d50ca7251b3",
       "statusName": "ACCEPTED",
       "leaderResult": "ERROR",
-      "revertPayload": "source_url domain not in authorized allowlist"
+      "revertPayload": ""
     },
     "alreadyResolved": {
-      "txHash": "0x71df5d4f1571e57c06bc7e1cfdc897beabe73e881fb7d56fdbe06cc0f6a7576c",
+      "txHash": "0x6121cfbb3af512102d6112e4267acc1550eea21999b31474205a8b0a24d86aab",
       "statusName": "ACCEPTED",
       "leaderResult": "ERROR",
-      "revertPayload": "commitment already resolved"
+      "revertPayload": ""
     }
   }
 }
