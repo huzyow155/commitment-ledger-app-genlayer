@@ -144,6 +144,72 @@ export const REVERT_MAP: Record<string, RevertInfo> = {
     commitmentStaysOpen: true,
     category: "consensus",
   },
+  "claim_kind must be SELF_DECLARED or THIRD_PARTY_REPORT": {
+    friendlyMessage: "Claim kind must be specified as either SELF_DECLARED or THIRD_PARTY_REPORT.",
+    severity: "error",
+    commitmentStaysOpen: true,
+    category: "input",
+  },
+  "deadline is not after registration date; set retrospective_ack to record a historical claim": {
+    friendlyMessage: "The registered deadline is in the past. To record historical analysis, you must acknowledge retrospective registration.",
+    severity: "warning",
+    commitmentStaysOpen: true,
+    category: "policy",
+  },
+  "commitment is not in provisional status": {
+    friendlyMessage: "This commitment is not currently in provisional status and cannot be challenged or concluded.",
+    severity: "error",
+    commitmentStaysOpen: false,
+    category: "state",
+  },
+  "commitment is final": {
+    friendlyMessage: "This commitment has already reached final adjudication and cannot be modified.",
+    severity: "error",
+    commitmentStaysOpen: false,
+    category: "state",
+  },
+  "challenge window has expired": {
+    friendlyMessage: "The 24-hour challenge reconsideration window for this provisional decision has elapsed.",
+    severity: "warning",
+    commitmentStaysOpen: false,
+    category: "state",
+  },
+  "challenge window still open": {
+    friendlyMessage: "The challenge reconsideration window is still open. Finalization is only permitted after window expiration or when the challenge budget is exhausted.",
+    severity: "info",
+    commitmentStaysOpen: false,
+    category: "state",
+  },
+  "challenge limit reached": {
+    friendlyMessage: "The maximum limit of 3 adjudication decisions has been reached for this commitment.",
+    severity: "warning",
+    commitmentStaysOpen: false,
+    category: "state",
+  },
+  "invalid challenge reason": {
+    friendlyMessage: "Challenge reason must be either UNSUPPORTED_CLASSIFICATION or CONFLICTING_EVIDENCE.",
+    severity: "error",
+    commitmentStaysOpen: false,
+    category: "input",
+  },
+  "source already used for this commitment": {
+    friendlyMessage: "This source URL has already been evaluated in an earlier decision for this commitment.",
+    severity: "warning",
+    commitmentStaysOpen: false,
+    category: "source",
+  },
+  "challenge must re-review the effective source": {
+    friendlyMessage: "An UNSUPPORTED_CLASSIFICATION challenge must cite the source URL from the decision being challenged.",
+    severity: "error",
+    commitmentStaysOpen: false,
+    category: "policy",
+  },
+  "insufficient evidence for a conclusive outcome": {
+    friendlyMessage: "Source text lacks sufficient ground truth to satisfy the required element threshold.",
+    severity: "warning",
+    commitmentStaysOpen: false,
+    category: "source",
+  },
 };
 
 export function mapRevertReason(rawRevert: string | null | undefined): RevertInfo {

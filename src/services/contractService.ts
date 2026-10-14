@@ -1,9 +1,10 @@
 import { createClient } from "genlayer-js";
-import { CONTRACT_ADDRESS, GENLAYER_CHAIN, RPC_URL } from "../config/chain";
+import { CONTRACT_ADDRESS, GENLAYER_CHAIN, RPC_URL, type ClaimKind, type ChallengeReason } from "../config/chain";
 import {
   parseCommitmentOutcome,
   parseCommitmentStatus,
   type CommitmentRecord,
+  type DecisionRecord,
 } from "../lib/outcome";
 
 export type ContractReadResult<T> =
@@ -61,11 +62,6 @@ export function decodeLeaderReceiptResult(base64Str: string): string {
  * Classifies whether a thrown readContract error from get_commitment represents
  * a genuine on-chain `gl.vm.UserError("commitment not found")` revert rather than
  * an arbitrary RPC/network failure or substring coincidence.
- *
- * Real Studionet `gen_call` shape when `get_commitment` raises `UserError("commitment not found")`:
- * - viem `InvalidInputRpcError` with `code: -32000`, `details: "execution failed"`,
- *   `cause: { code: -32000, message: "execution failed", data: {} }`
- * Or direct revert message forms ending with the exact revert string.
  */
 export function isCommitmentNotFoundError(err: unknown): boolean {
   if (err && typeof err === "object") {
@@ -106,6 +102,37 @@ export function isCommitmentNotFoundError(err: unknown): boolean {
   );
 }
 
+function mapRawRecord(parsed: any, fallbackId: string = ""): CommitmentRecord {
+  return {
+    schema_version: String(parsed.schema_version || "3.0.0"),
+    commitment_id: String(parsed.commitment_id || fallbackId),
+    registrant: String(parsed.registrant || ""),
+    raw_text: String(parsed.raw_text || ""),
+    subject: String(parsed.subject || ""),
+    action: String(parsed.action || ""),
+    deadline_hint: String(parsed.deadline_hint || ""),
+    registered_at: parsed.registered_at ? String(parsed.registered_at) : undefined,
+    registered_at_ts: parsed.registered_at_ts ? Number(parsed.registered_at_ts) : undefined,
+    registered_date: parsed.registered_date ? String(parsed.registered_date) : undefined,
+    registration_class: parsed.registration_class ? String(parsed.registration_class) : undefined,
+    record_class: parsed.record_class ? String(parsed.record_class) : undefined,
+    claim_kind: parsed.claim_kind ? String(parsed.claim_kind) : undefined,
+    identity_verified: Boolean(parsed.identity_verified),
+    created_round: Number(parsed.created_round || 0),
+    status: parseCommitmentStatus(parsed.status),
+    challenge_deadline_ts: parsed.challenge_deadline_ts ? Number(parsed.challenge_deadline_ts) : null,
+    current_decision_index: parsed.current_decision_index !== undefined ? Number(parsed.current_decision_index) : undefined,
+    decisions: Array.isArray(parsed.decisions) ? parsed.decisions : [],
+    outcome: parseCommitmentOutcome(parsed.outcome),
+    source_url: parsed.source_url ? String(parsed.source_url) : null,
+    resolution_quote: parsed.resolution_quote ? String(parsed.resolution_quote) : null,
+    match_confirmed: Boolean(parsed.match_confirmed),
+    resolved_at: parsed.resolved_at ? String(parsed.resolved_at) : null,
+    resolver: parsed.resolver ? String(parsed.resolver) : null,
+    finalized_at: parsed.finalized_at ? String(parsed.finalized_at) : null,
+  };
+}
+
 /**
  * Reads a single commitment by ID.
  * Distinguishes RPC error from genuine 'commitment not found'.
@@ -126,31 +153,41 @@ export async function getCommitment(
     }
 
     const parsed = JSON.parse(rawResult);
-    const record: CommitmentRecord = {
-      schema_version: String(parsed.schema_version || "2.2.0"),
-      commitment_id: String(parsed.commitment_id || commitmentId),
-      registrant: String(parsed.registrant || ""),
-      raw_text: String(parsed.raw_text || ""),
-      subject: String(parsed.subject || ""),
-      action: String(parsed.action || ""),
-      deadline_hint: String(parsed.deadline_hint || ""),
-      created_round: Number(parsed.created_round || 0),
-      status: parseCommitmentStatus(parsed.status),
-      outcome: parseCommitmentOutcome(parsed.outcome),
-      source_url: parsed.source_url ? String(parsed.source_url) : null,
-      resolution_quote: parsed.resolution_quote ? String(parsed.resolution_quote) : null,
-      match_confirmed: Boolean(parsed.match_confirmed),
-      resolved_at: parsed.resolved_at ? String(parsed.resolved_at) : null,
-      resolver: parsed.resolver ? String(parsed.resolver) : null,
-    };
-
-    return { ok: true, data: record };
+    return { ok: true, data: mapRawRecord(parsed, commitmentId) };
   } catch (err: unknown) {
     if (isCommitmentNotFoundError(err)) {
       return { ok: true, data: null, isNotFound: true };
     }
     const errMsg = err instanceof Error ? err.message : String(err);
     return { ok: false, error: errMsg };
+  }
+}
+
+/**
+ * Reads decision history for a commitment.
+ */
+export async function getDecisionHistory(
+  commitmentId: string
+): Promise<ContractReadResult<DecisionRecord[]>> {
+  const client = getGenLayerClient();
+  try {
+    const rawResult = await client.readContract({
+      address: CONTRACT_ADDRESS,
+      functionName: "get_decision_history",
+      args: [commitmentId.trim()],
+    });
+
+    if (!rawResult || typeof rawResult !== "string") {
+      return { ok: true, data: [] };
+    }
+
+    const parsed = JSON.parse(rawResult);
+    if (!Array.isArray(parsed)) {
+      return { ok: false, error: "Contract returned non-array decisions." };
+    }
+    return { ok: true, data: parsed };
+  } catch (err: unknown) {
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
   }
 }
 
@@ -178,23 +215,9 @@ export async function listCommitmentsByRegistrant(
       return { ok: false, error: "Contract returned non-array payload." };
     }
 
-    const records: CommitmentRecord[] = parsedList.map((item: any) => ({
-      schema_version: String(item.schema_version || "2.2.0"),
-      commitment_id: String(item.commitment_id || ""),
-      registrant: String(item.registrant || registrant),
-      raw_text: String(item.raw_text || ""),
-      subject: String(item.subject || ""),
-      action: String(item.action || ""),
-      deadline_hint: String(item.deadline_hint || ""),
-      created_round: Number(item.created_round || 0),
-      status: parseCommitmentStatus(item.status),
-      outcome: parseCommitmentOutcome(item.outcome),
-      source_url: item.source_url ? String(item.source_url) : null,
-      resolution_quote: item.resolution_quote ? String(item.resolution_quote) : null,
-      match_confirmed: Boolean(item.match_confirmed),
-      resolved_at: item.resolved_at ? String(item.resolved_at) : null,
-      resolver: item.resolver ? String(item.resolver) : null,
-    }));
+    const records: CommitmentRecord[] = parsedList.map((item: any) =>
+      mapRawRecord(item, item.commitment_id)
+    );
 
     return { ok: true, data: records };
   } catch (err: unknown) {
@@ -284,9 +307,9 @@ export async function pollTransactionReceipt(
 }
 
 /**
- * Registers commitment using the snapshot-diff method:
- * 1. Snapshot list_commitments_by_registrant(addr, 20)
- * 2. Send register_commitment(raw_text, deadline_hint)
+ * Registers commitment using 4 parameters (raw_text, deadline_hint, claim_kind, retrospective_ack):
+ * 1. Snapshot list_commitments_by_registrant(addr, 25)
+ * 2. Send register_commitment(raw_text, deadline_hint, claim_kind, retrospective_ack)
  * 3. Poll receipt
  * 4. Read list_commitments_by_registrant AFTER
  * 5. Discover the new commitment ID
@@ -295,6 +318,8 @@ export async function registerCommitmentFlow(
   account: any,
   rawText: string,
   deadlineHint: string,
+  claimKind: ClaimKind = "THIRD_PARTY_REPORT",
+  retrospectiveAck: boolean = false,
   onStatusUpdate?: (status: TxStatusReport) => void
 ): Promise<{ txHash: string; commitmentId: string; report: TxStatusReport }> {
   const addr = account.address;
@@ -307,7 +332,7 @@ export async function registerCommitmentFlow(
   const txHash: string = await client.writeContract({
     address: CONTRACT_ADDRESS,
     functionName: "register_commitment",
-    args: [rawText.trim(), deadlineHint.trim()],
+    args: [rawText.trim(), deadlineHint.trim(), claimKind, retrospectiveAck],
     value: 0n,
   } as any);
 
@@ -348,6 +373,48 @@ export async function submitResolutionFlow(
     address: CONTRACT_ADDRESS,
     functionName: "submit_resolution",
     args: [commitmentId.trim(), sourceUrl.trim()],
+    value: 0n,
+  } as any);
+
+  const report = await pollTransactionReceipt(txHash, onStatusUpdate);
+  return { txHash, report };
+}
+
+/**
+ * Challenges a provisional resolution with a stated reason and supporting source URL.
+ */
+export async function challengeResolutionFlow(
+  account: any,
+  commitmentId: string,
+  reason: ChallengeReason,
+  sourceUrl: string,
+  onStatusUpdate?: (status: TxStatusReport) => void
+): Promise<{ txHash: string; report: TxStatusReport }> {
+  const client = getGenLayerClient(account);
+  const txHash: string = await client.writeContract({
+    address: CONTRACT_ADDRESS,
+    functionName: "challenge_resolution",
+    args: [commitmentId.trim(), reason, sourceUrl.trim()],
+    value: 0n,
+  } as any);
+
+  const report = await pollTransactionReceipt(txHash, onStatusUpdate);
+  return { txHash, report };
+}
+
+/**
+ * Finalizes a resolution after the challenge window expires or decision budget is exhausted.
+ */
+export async function finalizeResolutionFlow(
+  account: any,
+  commitmentId: string,
+  onStatusUpdate?: (status: TxStatusReport) => void
+): Promise<{ txHash: string; report: TxStatusReport }> {
+  const client = getGenLayerClient(account);
+  const txHash: string = await client.writeContract({
+    address: CONTRACT_ADDRESS,
+    functionName: "finalize_resolution",
+    args: [commitmentId.trim()],
     value: 0n,
   } as any);
 

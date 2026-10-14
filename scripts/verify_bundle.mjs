@@ -9,8 +9,9 @@ if (!fs.existsSync(distAssetsDir)) {
   process.exit(1);
 }
 
-const ACTIVE_ADDRESS = "0x3155c7c80f4334968d61E1b79f74EB864CF7cb08".toLowerCase();
+const ACTIVE_ADDRESS = "0xdD0d120B50ED65400E8b6a060bB15103B42544E8".toLowerCase();
 const SUPERSEDED_ADDRESSES = [
+  "0x3155c7c80f4334968d61E1b79f74EB864CF7cb08".toLowerCase(),
   "0x0A4Dc27c06520EA1EbcAEAFBF94f90b2AbDc6aa1".toLowerCase(),
   "0x8a5269aa724E77D799b3F0dbbaeee7683157f52d".toLowerCase(),
   "0x13b20E2DBc4E8C2D30e3E484D78ee90f583882F3".toLowerCase(),

@@ -3,7 +3,7 @@
 Web workbench and ledger interface for the [CommitmentLedger Intelligent Contract](https://github.com/huzyow155/commitment-ledger-genlayer) on GenLayer Studionet (Preview).
 
 [![Production Deployment](https://img.shields.io/badge/Vercel-Production-22c55e.svg)](https://commitment-ledger-app-genlayer.vercel.app)
-[![Contract](https://img.shields.io/badge/Contract-0x3155...cb08-blue.svg)](https://explorer-studio.genlayer.com/address/0x3155c7c80f4334968d61E1b79f74EB864CF7cb08)
+[![Contract](https://img.shields.io/badge/Contract-0xdD0d...44E8-blue.svg)](https://explorer-studio.genlayer.com/address/0xdD0d120B50ED65400E8b6a060bB15103B42544E8)
 [![Network](https://img.shields.io/badge/Network-Studionet%20(Preview)-amber.svg)](https://explorer-studio.genlayer.com)
 
 **Production URL**: [https://commitment-ledger-app-genlayer.vercel.app](https://commitment-ledger-app-genlayer.vercel.app)
@@ -17,13 +17,14 @@ Web workbench and ledger interface for the [CommitmentLedger Intelligent Contrac
 The contract holds no funds, requires no collateral or tokens, and accepts no caller-written evidence text. All resolutions are source-grounded: validators fetch the referenced web page, verify that it pertains to the subject, extract a verbatim quote (12+ characters), and classify the outcome (`KEPT`, `BROKEN`, `PARTIAL`).
 
 This repository contains the front-end dApp:
-1. **Interactive Notary Ledger (`/`)**: A 13-section educational landing page designed with warm editorial craftsmanship, detailing the two-phase consensus lifecycle, allowlist rules, and on-chain evidence cases.
+1. **Interactive Notary Ledger (`/`)**: An educational landing page designed with warm editorial craftsmanship, detailing the two-phase consensus lifecycle, allowlist rules, and on-chain evidence cases.
 2. **Interactive Workbench (`/app`)**: An operational workbench providing:
    - In-browser throwaway wallet generation (zero setup, zero faucet dependency).
-   - Real-time client-side input validation mirroring contract constraints.
+   - Real-time client-side input validation mirroring contract constraints (including prospective vs retrospective deadline detection).
    - **Snapshot-diff ID discovery**: Automatically finds new commitment IDs even if transaction receipts do not return method return values.
    - **Multi-stage consensus pipeline monitor**: Tracks broadcast, validator execution, receipt status, and decodes contract revert payloads.
    - **On-chain reference examples**: Interactive lookup cards pre-loaded with verified Studionet transactions.
+   - **Challenge & Dispute Modal**: Structured modal allowing participants to initiate bounded reconsideration re-reviews during the 120-second challenge window.
 
 ---
 
@@ -53,52 +54,30 @@ Captured directly from the Vercel production deployment ([https://commitment-led
 
 ## Verified On-Chain Evidence
 
-The dApp connects directly to contract `0x3155c7c80f4334968d61E1b79f74EB864CF7cb08`. The following cases were executed and accepted on GenLayer Studionet (Preview):
+The dApp connects directly to contract `0xdD0d120B50ED65400E8b6a060bB15103B42544E8`. The following cases were executed and accepted by validators on GenLayer Studionet (Preview):
 
-### Contract Verification Baseline (Cases A, B, C)
+### Contract Verification Baseline
 
 | Case | ID | Register Tx | Resolve Tx | Outcome | Source URL & Grounded Quote |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Case A** (Paraphrased Source, KEPT) | `1fe69a47c557` | [`0xd61b234967a1011ec915b56afeae573fb4bd54192f5ad1358fd82a90d1737abd`](https://explorer-studio.genlayer.com/tx/0xd61b234967a1011ec915b56afeae573fb4bd54192f5ad1358fd82a90d1737abd) | [`0x54b64f75cd22ef47ac2adecc71ee1e37dd95869c75ea7a274a7c6424e8b715c5`](https://explorer-studio.genlayer.com/tx/0x54b64f75cd22ef47ac2adecc71ee1e37dd95869c75ea7a274a7c6424e8b715c5) | `KEPT` | `https://en.wikipedia.org/wiki/Apollo_11`<br>Quote: *"Apollo 11 (July 16–24, 1969) was the American spaceflight that first landed humans on the Moon"* |
-| **Case B** (Grounded Quote, BROKEN) | `605aa94797d3` | [`0xae2cd4b15272a53eaf11d6d3fb9fc5200610ddf170c494672f81c42cd7333823`](https://explorer-studio.genlayer.com/tx/0xae2cd4b15272a53eaf11d6d3fb9fc5200610ddf170c494672f81c42cd7333823) | [`0xf04a899cfb85a62e958a7e378b063026f21811726c8f8a612c7fbf080a85e943`](https://explorer-studio.genlayer.com/tx/0xf04a899cfb85a62e958a7e378b063026f21811726c8f8a612c7fbf080a85e943) | `BROKEN` | `https://en.wikipedia.org/wiki/Apollo_13`<br>Quote: *"the landing was aborted after an oxygen tank in the service module (SM) exploded two days into the mission"* |
-| **Case C** (Distractor Rejection, NOMATCH) | `4efe7cbd0772` | [`0x588c25fb25bbb86c235943ae06a9dcfd7523238e1d177be731bad1244c7baec2`](https://explorer-studio.genlayer.com/tx/0x588c25fb25bbb86c235943ae06a9dcfd7523238e1d177be731bad1244c7baec2) | [`0x7dda2fcd83a02ce8d34fc451d3ff5bff18129ea078cc4a1d31776e1f73b74a59`](https://explorer-studio.genlayer.com/tx/0x7dda2fcd83a02ce8d34fc451d3ff5bff18129ea078cc4a1d31776e1f73b74a59) | Reverted (`OPEN`) | `https://en.wikipedia.org/wiki/Falcon_9`<br>Revert: `"source does not match this commitment"` |
+| **Case P1** (Prospective, OPEN) | `3d2cc5901dad` | [`0x30883fec9e9135929dccc73857b461358606c74c6870ebc274562379c5c6382c`](https://explorer-studio.genlayer.com/tx/0x30883fec9e9135929dccc73857b461358606c74c6870ebc274562379c5c6382c) | None (Pending Maturity) | `null` (status `OPEN`) | `https://en.wikipedia.org/wiki/List_of_spaceflight_launches_in_October%E2%80%93December_2026`<br>Forward-looking commitment maturing 2026-10-16. |
+| **Case A** (Paraphrased Source, KEPT) | `d569fda4e876` | [`0x6899aa4400c42c606b80a570deceec0105179c83dd2e783eae11202ef81eab38`](https://explorer-studio.genlayer.com/tx/0x6899aa4400c42c606b80a570deceec0105179c83dd2e783eae11202ef81eab38) | [`0xd379123921e3f89d9e360ca8c7913d748c82f58f897cf08dd6b1490588eb449f`](https://explorer-studio.genlayer.com/tx/0xd379123921e3f89d9e360ca8c7913d748c82f58f897cf08dd6b1490588eb449f) | `KEPT` | `https://en.wikipedia.org/wiki/Apollo_11`<br>Elements e1, e2, e3 all `SATISFIED`. Evidence SHA-256 fingerprint verified. |
+| **Case B** (Contradicted Action, BROKEN) | `9875a6cdef6d` | [`0xf2ce034fcf4b7b8598330d81944b7f315a18024cc44e64882b872096a1cdbf5a`](https://explorer-studio.genlayer.com/tx/0xf2ce034fcf4b7b8598330d81944b7f315a18024cc44e64882b872096a1cdbf5a) | [`0x0684f543bf5e95f6f1656150a03ca8fa2dbb7409d74e7bfbf3559347a973acbc`](https://explorer-studio.genlayer.com/tx/0x0684f543bf5e95f6f1656150a03ca8fa2dbb7409d74e7bfbf3559347a973acbc) | `BROKEN` | `https://en.wikipedia.org/wiki/Apollo_13`<br>Action e1 marked `NOT_SATISFIED` due to oxygen tank explosion and mission abort. |
+| **Case C** (Condition Omitted, BROKEN) | `ec77538d32e9` | [`0x0b7176db894ee47fb8805667d4d1a38ddce4b3c4917f09a4c735b2e59eb524d2`](https://explorer-studio.genlayer.com/tx/0x0b7176db894ee47fb8805667d4d1a38ddce4b3c4917f09a4c735b2e59eb524d2) | [`0x724098f2fa4c497274c3c29ab60083eed8012adf7866a45b8af36356d72081b5`](https://explorer-studio.genlayer.com/tx/0x724098f2fa4c497274c3c29ab60083eed8012adf7866a45b8af36356d72081b5) | `BROKEN` | `https://en.wikipedia.org/wiki/Apollo_11`<br>Condition "all three astronauts" marked `NOT_SATISFIED` as Collins stayed in orbit. |
+| **Case D** (Missed Deadline, OPEN) | `a0d3d1ba6356` | [`0x019162a6722dbfe94c96050be14ecd773fa8ca8026175f508f668416107e146b`](https://explorer-studio.genlayer.com/tx/0x019162a6722dbfe94c96050be14ecd773fa8ca8026175f508f668416107e146b) | [`0xbfd05f848dd5bf898b9089a877f37edbb4a179fbc971884c5e752f04bec9e177`](https://explorer-studio.genlayer.com/tx/0xbfd05f848dd5bf898b9089a877f37edbb4a179fbc971884c5e752f04bec9e177) | Reverted (`OPEN`) | `https://en.wikipedia.org/wiki/Apollo_11`<br>Reverted with inconclusive evidence, preserving commitment as `OPEN`. |
 
-### dApp End-to-End On-Chain Test Flow
+### On-Chain Negative Rejection Tests
 
-Conducted on Studionet with throwaway key `0xCE99a5b07325130bea57D893d13eB8A882fBe7ff` via `scripts/run_e2e.mjs`:
-
-- **Fresh Registered Commitment ID**: `2cb7fcbc7999`
-- **Registration Transaction Hash**: [`0x0019c0d7d4df260e52cb6525e068e8eddfa47fa52361e63836e15641b7afb4c6`](https://explorer-studio.genlayer.com/tx/0x0019c0d7d4df260e52cb6525e068e8eddfa47fa52361e63836e15641b7afb4c6)
-  - Registered Raw Text: `"The Apollo 11 lunar module will touch down on the lunar surface before 1970."`
-  - Deadline Hint: `1970-01-01`
-  - On-Chain Canonical Extraction Read-Back:
-    - `subject`: `"apollo 11 lunar module"`
-    - `action`: `"touch down on the lunar surface before 1970"`
-    - `status`: `"OPEN"`
-- **Resolution Transaction Hash**: [`0x30e08628b0d0441915b65df5dcfa9417021db95b4b7dfcb6ba3c66c8ec0c2854`](https://explorer-studio.genlayer.com/tx/0x30e08628b0d0441915b65df5dcfa9417021db95b4b7dfcb6ba3c66c8ec0c2854)
-  - Source URL: `https://en.wikipedia.org/wiki/Apollo_11`
-  - Consensus Status: `ACCEPTED`, Leader Result: `SUCCESS`
-  - *Consensus Note*: Accepted after 2 retries following transient validator disagreement on Studionet.
-  - Final Record Read-Back:
-    - `status`: `"RESOLVED"`
-    - `outcome`: `"KEPT"`
-    - `resolution_quote`: `"Armstrong and Aldrin descended to the surface aboard the LM Eagle, landing in the Sea of Tranquility (Mare Tranquillitatis) on July 20 at 20:17 UTC"` (145 chars, verbatim substring verified)
-    - `match_confirmed`: `true`
-
-### dApp Negative Rejection Tests (On-Chain)
-
-1. **Non-Allowlisted Domain Rejection**:
-   - URL: `https://github.com/nasa/webb` on commitment `4efe7cbd0772`
-   - Transaction Hash: [`0x0b377fbaf1221fb74004b7d35abb1004043e99f218a485a77363c1cdb3fcaefb`](https://explorer-studio.genlayer.com/tx/0x0b377fbaf1221fb74004b7d35abb1004043e99f218a485a77363c1cdb3fcaefb)
-   - Leader Result: `ERROR`
-   - Decoded Revert Payload: `"source_url domain not in authorized allowlist"`
-2. **Double Resolution Guard**:
-   - Attempted second resolution on resolved record `2cb7fcbc7999`
-   - Transaction Hash: [`0x71df5d4f1571e57c06bc7e1cfdc897beabe73e881fb7d56fdbe06cc0f6a7576c`](https://explorer-studio.genlayer.com/tx/0x71df5d4f1571e57c06bc7e1cfdc897beabe73e881fb7d56fdbe06cc0f6a7576c)
-   - Leader Result: `ERROR`
-   - Decoded Revert Payload: `"commitment already resolved"`
-
-Full structured JSON execution trace is preserved in [docs/E2E_EVIDENCE.json](docs/E2E_EVIDENCE.json).
+| Test | Submitted Parameter | Transaction Hash | Status Name | Leader Result | Revert Payload |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| Retrospective Without Ack | `1969-07-20` without ack | [`0xa025fb40394d752a2bf3f79cf0e66d7755daecf8daf8f2b530f001964e41db72`](https://explorer-studio.genlayer.com/tx/0xa025fb40394d752a2bf3f79cf0e66d7755daecf8daf8f2b530f001964e41db72) | `ACCEPTED` | `ERROR` | `"deadline is not after registration date; set retrospective_ack to record a historical claim"` |
+| Invalid Claim Kind | `"UNOFFICIAL"` | [`0xd565b19a8a3f2c453b146d7399741655cbe54be11cc5ccb8b248d9777f0b5bf4`](https://explorer-studio.genlayer.com/tx/0xd565b19a8a3f2c453b146d7399741655cbe54be11cc5ccb8b248d9777f0b5bf4) | `ACCEPTED` | `ERROR` | `"claim_kind must be SELF_DECLARED or THIRD_PARTY_REPORT"` |
+| Premature Resolution | `2099-01-01` before deadline | [`0x4b210b3ab195d8765ece9e8b0ac0bd9f9ed7bc8fc3606bc7c5bc71ec6cd9171e`](https://explorer-studio.genlayer.com/tx/0x4b210b3ab195d8765ece9e8b0ac0bd9f9ed7bc8fc3606bc7c5bc71ec6cd9171e) | `ACCEPTED` | `ERROR` | `"cannot resolve before deadline date"` |
+| Distractor Source Rejection | Falcon 9 article for Apollo | [`0x1d4132b76b6a33f156ea4f66efd32015ea04612cf754666c3b349d89d11e2011`](https://explorer-studio.genlayer.com/tx/0x1d4132b76b6a33f156ea4f66efd32015ea04612cf754666c3b349d89d11e2011) | `ACCEPTED` | `ERROR` | `"source does not match this commitment"` |
+| Non-Allowlisted Domain | `https://github.com/nasa/webb` | [`0xe9a3457e57ff0da66c9fe7a0e569c489c05e6b00cda0bea8f2b98be45376f4a3`](https://explorer-studio.genlayer.com/tx/0xe9a3457e57ff0da66c9fe7a0e569c489c05e6b00cda0bea8f2b98be45376f4a3) | `ACCEPTED` | `ERROR` | `"source_url domain not in authorized allowlist"` |
+| Challenge While Open | Challenge on unadjudicated claim | [`0xb56ab310f04b61d9d9b10ad5d8b1d51252880eb250dec912300af265f7e6d3e4`](https://explorer-studio.genlayer.com/tx/0xb56ab310f04b61d9d9b10ad5d8b1d51252880eb250dec912300af265f7e6d3e4) | `ACCEPTED` | `ERROR` | `"commitment is not in provisional status"` |
+| Finalize While Open | Finalize on unadjudicated claim | [`0x73acc08da9391f0597ef8f27c8911bce5772bf713e141f0a88a45146a3bd8ced`](https://explorer-studio.genlayer.com/tx/0x73acc08da9391f0597ef8f27c8911bce5772bf713e141f0a88a45146a3bd8ced) | `ACCEPTED` | `ERROR` | `"commitment is not in provisional status"` |
+| Early Finalize | Finalize before window expires | [`0xa74ba93acb13951a376e9ff7359b27b9f879800db7cceecdba63865836d83fcd`](https://explorer-studio.genlayer.com/tx/0xa74ba93acb13951a376e9ff7359b27b9f879800db7cceecdba63865836d83fcd) | `ACCEPTED` | `ERROR` | `"challenge window still open"` |
 
 ---
 
@@ -107,18 +86,18 @@ Full structured JSON execution trace is preserved in [docs/E2E_EVIDENCE.json](do
 1. **Studionet (Preview) Environment**:
    - The contract and dApp operate on GenLayer Studionet (Chain ID 61999). Validator execution times can range from 15 to 45 seconds per write transaction.
 2. **Source-Grounded Verdict, Not Absolute Truth**:
-   - The contract does not claim to be an infallible oracle of world events. It strictly assesses whether the provided public source URL supports the claim and contains a verbatim grounding quote.
-3. **6,000-Character Source Boundary**:
-   - When resolving, validators inspect only the first 6,000 characters of the fetched web page. Citations or details located further down the page will not be read by validators.
+   - The contract does not claim to be an infallible oracle of world events. It strictly assesses whether the provided public source URL supports the claim and contains verbatim grounding evidence.
+3. **12,000-Character Source Window Boundary**:
+   - When resolving, validators deterministically select keyword-relevant windows up to 12,000 characters from allowlisted web pages to remain within LLM context bounds and ensure deterministic consensus.
 4. **On-Chain vs Unit-Tested Branches**:
-   - **On-Chain Verified**: Registration validation, canonical extraction (`{subject, action}`), `KEPT` resolution, `BROKEN` resolution, distractor rejection (`NOMATCH`), non-allowlist URL rejection, and double-resolution rejection.
-   - **Unit-Tested Only**: The `PARTIAL` outcome, ungrounded quote rejection (`"no grounded quote in source"`), and unparseable model output (`"model returned no valid outcome"`) are validated via comprehensive unit tests in the contract repository (`tests/test_c1_edge_cases.py` and `tests/test_layer2_mocked.py`). On Studionet, ambiguous prompt resolutions can result in validator disagreement (`UNDETERMINED` / `MAJORITY_DISAGREE`), preserving the commitment in its `OPEN` state.
+   - **On-Chain Verified**: Prospective vs retrospective classification, claim kind declarations, element-based conjunction adjudication, distractor rejection, non-allowlist rejection, and the challenge & dispute state machine.
+   - **Unit-Tested Only**: Boundary cases such as max decisions cap (3), malformed JSON parsing from adversarial models, and sentence segmentations are verified via Python unit tests in the contract repository.
 
 ---
 
 ## System Architecture
 
-```
+```text
 +---------------------------------------------------------------------------------------+
 |                                COMMITMENTLEDGER DAPP                                  |
 +---------------------------------------------------------------------------------------+
@@ -126,11 +105,11 @@ Full structured JSON execution trace is preserved in [docs/E2E_EVIDENCE.json](do
 |    │                                                                                  |
 |    ├── Client-Side Preflight Checks (src/lib/validators.ts)                            |
 |    │     ├── Character bounds (1 <= raw_text <= 400)                                  |
-|    │     ├── Strict YYYY-MM-DD calendar date with leap year verification              |
+|    │     ├── Calendar date check & prospective vs retrospective deadline detection     |
 |    │     └── Allowlist URL parsing (https only, no userinfo, port 443, 7 domains)     |
 |    │                                                                                  |
 |    ├── Throwaway Wallet (src/context/WalletContext.tsx)                               |
-|    │     └── Ephemeral privateKey in sessionStorage, zero faucet funds required       |
+|    │     └── Ephemeral privateKey in localStorage, zero faucet funds required         |
 |    │                                                                                  |
 |    └── Transaction Pipeline Monitor (src/components/TxPipelineModal.tsx)              |
 |          ├── Broadcast -> Poll transaction status via JSON-RPC                        |
@@ -142,20 +121,21 @@ Full structured JSON execution trace is preserved in [docs/E2E_EVIDENCE.json](do
 +---------------------------------------------------------------------------------------+
 |                                GENLAYER STUDIONET                                     |
 +---------------------------------------------------------------------------------------+
-|  Intelligent Contract: 0x3155c7c80f4334968d61E1b79f74EB864CF7cb08 (v2.2.0)            |
+|  Intelligent Contract: 0xdD0d120B50ED65400E8b6a060bB15103B42544E8 (v3.0.0)            |
 |    │                                                                                  |
-|    ├── register_commitment(raw_text, deadline_hint)                                   |
-|    │     └── Consensus extract {subject, action} via strict_eq -> Stores as OPEN      |
+|    ├── register_commitment(raw_text, deadline_hint, claim_kind, retrospective_ack)    |
+|    │     └── Temporal check: PROSPECTIVE vs RETROSPECTIVE -> Stores as OPEN           |
 |    │                                                                                  |
-|    └── submit_resolution(commitment_id, source_url)                                   |
-|          ├── Clock Guard: gl.message_raw["datetime"] >= deadline_hint                  |
-|          ├── Allowlist Guard: urllib.parse.urlsplit domain verification               |
-|          ├── Web Render: gl.nondet.web.render(source_url)[:6000]                      |
-|          └── Consensus Verification Cascade:                                          |
-|                NOMATCH     -> Revert "source does not match this commitment"          |
-|                INVALID     -> Revert "model returned no valid outcome"                |
-|                UNGROUNDED  -> Revert "no grounded quote in source"                    |
-|                MATCH       -> Transitions to RESOLVED with verbatim quote             |
+|    ├── submit_resolution(commitment_id, source_url)                                   |
+|    │     ├── Window selection & segmentation -> sha256 evidence fingerprint          |
+|    │     ├── Element-based evaluation -> Conjunction rule                             |
+|    │     └── Sets status PROVISIONAL with 120s challenge window                       |
+|    │                                                                                  |
+|    ├── challenge_resolution(commitment_id, reason_code, rationale, countervailing_url)|
+|    │     └── Reconsideration under strict grounding -> WITHDRAWN if ungrounded        |
+|    │                                                                                  |
+|    └── finalize_resolution(commitment_id)                                             |
+|          └── Closes window -> Sets status "FINAL"                                     |
 +---------------------------------------------------------------------------------------+
 ```
 
@@ -163,7 +143,7 @@ Full structured JSON execution trace is preserved in [docs/E2E_EVIDENCE.json](do
 
 ## Repository Structure
 
-```
+```text
 commitment-ledger-app-genlayer/
 ├── contracts-reference/
 │   └── CommitmentLedger.py       # Byte-identical reference copy of deployed contract
@@ -176,7 +156,7 @@ commitment-ledger-app-genlayer/
 │   └── screens/                  # Production screenshots from Vercel deployment
 ├── public/
 │   ├── logo.svg                  # Master standalone vector mark
-│   ├── logo-wordmark.svg         # Mark + CommitmentLedger v2.2 lockup
+│   ├── logo-wordmark.svg         # Mark + CommitmentLedger v3.0 lockup
 │   ├── favicon.svg               # Vector favicon
 │   ├── favicon-32x32.png         # 32x32 PNG favicon
 │   └── apple-touch-icon.png      # 180x180 Apple touch icon
@@ -192,7 +172,7 @@ commitment-ledger-app-genlayer/
 │   ├── context/WalletContext.tsx # Throwaway wallet session management
 │   ├── lib/
 │   │   ├── outcome.ts            # Exact-token parser for status & outcome
-│   │   ├── revertMap.ts          # Human-friendly decoding for 23 contract reverts
+│   │   ├── revertMap.ts          # Human-friendly decoding for contract reverts
 │   │   └── validators.ts         # Client-side input validation logic
 │   ├── services/
 │   │   └── contractService.ts    # JSON-RPC reads, transactions, snapshot-diff
@@ -201,7 +181,7 @@ commitment-ledger-app-genlayer/
 │   │   ├── Header.tsx            # Navigation, network status, wallet actions
 │   │   └── TxPipelineModal.tsx   # Multi-stage transaction pipeline tracker
 │   ├── pages/
-│   │   ├── Landing.tsx           # 13-section educational landing page
+│   │   ├── Landing.tsx           # Educational landing page
 │   │   └── Workbench.tsx         # Operational /app workbench
 │   ├── App.tsx                   # Hash-based view router
 │   └── main.tsx                  # Application entry point
@@ -217,11 +197,24 @@ commitment-ledger-app-genlayer/
 
 The file `contracts-reference/CommitmentLedger.py` is byte-identical to the contract deployed on Studionet:
 
-- **Expected SHA-256**: `fe63f0cc5a5788e2e3199919ddb5ee067c4c19c17389a8a250764f8e5299016f`
+- **Expected SHA-256**: `e14342dac8a0bdb983d4796557a59d3ae0e47e0715b9290d46cf3986cae1ac9c`
 - **Verification Command**:
   ```bash
-  node -e "const crypto = require('crypto'), fs = require('fs'); const hash = crypto.createHash('sha256').update(fs.readFileSync('contracts-reference/CommitmentLedger.py')).digest('hex'); console.log('SHA-256:', hash); process.exit(hash === 'fe63f0cc5a5788e2e3199919ddb5ee067c4c19c17389a8a250764f8e5299016f' ? 0 : 1);"
+  node -e "const crypto = require('crypto'), fs = require('fs'); const hash = crypto.createHash('sha256').update(fs.readFileSync('contracts-reference/CommitmentLedger.py')).digest('hex'); console.log('SHA-256:', hash); process.exit(hash === 'e14342dac8a0bdb983d4796557a59d3ae0e47e0715b9290d46cf3986cae1ac9c' ? 0 : 1);"
   ```
+
+---
+
+## Superseded Deployments
+
+The following contracts were deployed during development and have been superseded:
+
+| Address | Deploy Transaction Hash | Superseded Reason |
+| :--- | :--- | :--- |
+| `0x3155c7c80f4334968d61E1b79f74EB864CF7cb08` | [`0x1aff7096cb2283f0e60ea74f4249d5d319f650177d9bee7a8ae798b7cf4c970a`](https://explorer-studio.genlayer.com/tx/0x1aff7096cb2283f0e60ea74f4249d5d319f650177d9bee7a8ae798b7cf4c970a) | Superseded by v3.0.0: answered steward review with temporal authenticity, element-based adjudication of full original statement, claim kind/identity unverified, bounded challenge & reconsideration state machine, and sha256 evidence fingerprints. |
+| `0x0A4Dc27c06520EA1EbcAEAFBF94f90b2AbDc6aa1` | [`0x9b738652bceac390143a01f7dcf7ca24b7a92714430d950c34f9ae2936de4f52`](https://explorer-studio.genlayer.com/tx/0x9b738652bceac390143a01f7dcf7ca24b7a92714430d950c34f9ae2936de4f52) | Superseded by v2.2.0: could write PARTIAL when model returned no valid outcome. |
+| `0x8a5269aa724E77D799b3F0dbbaeee7683157f52d` | [`0xc8461e53602c7cc610eab8d99bb8f277b388debb1366736529f90439ba8e4a6b`](https://explorer-studio.genlayer.com/tx/0xc8461e53602c7cc610eab8d99bb8f277b388debb1366736529f90439ba8e4a6b) | Superseded by v2.1.0: removed ungrounded fallback and enforced mandatory calendar date deadlines. |
+| `0x13b20E2DBc4E8C2D30e3E484D78ee90f583882F3` | [`0x50015b28539130d6bebb768639427029725183f3b8b6b8b4490510c68ccfc235`](https://explorer-studio.genlayer.com/tx/0x50015b28539130d6bebb768639427029725183f3b8b6b8b4490510c68ccfc235) | Initial caller-written text prototype, superseded by source-based resolution. |
 
 ---
 
@@ -268,5 +261,5 @@ node tests/ui_production.mjs
 ## Related Repositories
 
 - **Contract Repository**: [https://github.com/huzyow155/commitment-ledger-genlayer](https://github.com/huzyow155/commitment-ledger-genlayer)
-  - Contains the Python Intelligent Contract source, deploy scripts, unit tests, and the historical superseded deployments table (v1.0.0, v2.0.0, v2.1.0).
+  - Contains the Python Intelligent Contract source, deploy scripts, unit tests, and the historical superseded deployments table (v1.0.0, v2.0.0, v2.1.0, v2.2.0).
 - **GenLayer Studionet Explorer**: [https://explorer-studio.genlayer.com](https://explorer-studio.genlayer.com)

@@ -9,11 +9,19 @@ import {
   Calendar,
   Globe,
   ArrowLeft,
+  Gavel,
+  Check,
+  AlertTriangle,
+  History,
+  X,
+  Fingerprint,
 } from "lucide-react";
 import { useWallet } from "../context/WalletContext";
 import {
   registerCommitmentFlow,
   submitResolutionFlow,
+  challengeResolutionFlow,
+  finalizeResolutionFlow,
   getCommitment,
   listCommitmentsByRegistrant,
   type TxStatusReport,
@@ -30,7 +38,9 @@ import { TxPipelineModal } from "../components/TxPipelineModal";
 import {
   ALLOWED_DOMAINS,
   CONTRACT_SCHEMA_VERSION,
-  SOURCE_TRUNCATION_LIMIT,
+  CONTRACT_ADDRESS,
+  type ClaimKind,
+  type ChallengeReason,
 } from "../config/chain";
 import {
   AlwayzzLines,
@@ -61,12 +71,20 @@ export const Workbench: React.FC = () => {
   // Form states: Register
   const [registerText, setRegisterText] = useState("");
   const [registerDeadline, setRegisterDeadline] = useState("");
+  const [claimKind, setClaimKind] = useState<ClaimKind>("THIRD_PARTY_REPORT");
+  const [retrospectiveAck, setRetrospectiveAck] = useState(false);
   const [newlyCreatedCommitment, setNewlyCreatedCommitment] = useState<CommitmentRecord | null>(null);
 
   // Form states: Resolve
   const [resolveCommitmentId, setResolveCommitmentId] = useState(searchParams.get("id") || "");
   const [resolveSourceUrl, setResolveSourceUrl] = useState("");
   const [resolvedRecord, setResolvedRecord] = useState<CommitmentRecord | null>(null);
+
+  // Form states: Challenge Modal
+  const [challengeModalOpen, setChallengeModalOpen] = useState(false);
+  const [challengeCid, setChallengeCid] = useState("");
+  const [challengeReason, setChallengeReason] = useState<ChallengeReason>("UNSUPPORTED_CLASSIFICATION");
+  const [challengeSourceUrl, setChallengeSourceUrl] = useState("");
 
   // Lookup state
   const [lookupId, setLookupId] = useState("");
@@ -79,12 +97,14 @@ export const Workbench: React.FC = () => {
 
   // Real on-chain example records for "Examples" tab
   const [examplesData, setExamplesData] = useState<{
+    caseP1: CommitmentRecord | null;
     caseA: CommitmentRecord | null;
     caseB: CommitmentRecord | null;
     caseC: CommitmentRecord | null;
     loading: boolean;
     error: string | null;
   }>({
+    caseP1: null,
     caseA: null,
     caseB: null,
     caseC: null,
@@ -96,6 +116,15 @@ export const Workbench: React.FC = () => {
   const textValidation = validateRawText(registerText);
   const deadlineValidation = validateDeadlineDate(registerDeadline);
   const urlValidation = validateSourceUrl(resolveSourceUrl);
+  const challengeUrlValidation = validateSourceUrl(challengeSourceUrl);
+
+  // Dynamic classification: check against today / current date
+  const todayIso = new Date().toISOString().slice(0, 10);
+  const isRetrospective = Boolean(
+    registerDeadline &&
+    registerDeadline.length === 10 &&
+    registerDeadline <= todayIso
+  );
 
   // Fetch my commitments
   const refreshMyCommitments = async () => {
@@ -119,31 +148,24 @@ export const Workbench: React.FC = () => {
     if (activeTab === "examples" && !examplesData.caseA && !examplesData.loading) {
       setExamplesData((prev) => ({ ...prev, loading: true, error: null }));
       Promise.all([
-        getCommitment("1fe69a47c557"), // Case A (Apollo 11 KEPT)
-        getCommitment("605aa94797d3"), // Case B (Apollo 13 BROKEN)
-        getCommitment("4efe7cbd0772"), // Case C (Falcon 9 NOMATCH OPEN)
+        getCommitment("d1bf80127e98"), // Case P1 (Prospective, OPEN)
+        getCommitment("80e4e5b412bf"), // Case A (Apollo 11 KEPT)
+        getCommitment("9875a6cdef6d"), // Case B (Apollo 13 BROKEN)
+        getCommitment("ec77538d32e9"), // Case C (Condition Omitted, BROKEN)
       ])
-        .then(([resA, resB, resC]) => {
-          if (!resA.ok || !resB.ok || !resC.ok) {
-            setExamplesData({
-              caseA: null,
-              caseB: null,
-              caseC: null,
-              loading: false,
-              error: "Failed to read example commitments from RPC.",
-            });
-          } else {
-            setExamplesData({
-              caseA: resA.data,
-              caseB: resB.data,
-              caseC: resC.data,
-              loading: false,
-              error: null,
-            });
-          }
+        .then(([resP1, resA, resB, resC]) => {
+          setExamplesData({
+            caseP1: resP1.ok && resP1.data ? resP1.data : null,
+            caseA: resA.ok && resA.data ? resA.data : null,
+            caseB: resB.ok && resB.data ? resB.data : null,
+            caseC: resC.ok && resC.data ? resC.data : null,
+            loading: false,
+            error: null,
+          });
         })
         .catch((err) => {
           setExamplesData({
+            caseP1: null,
             caseA: null,
             caseB: null,
             caseC: null,
@@ -159,6 +181,7 @@ export const Workbench: React.FC = () => {
     e.preventDefault();
     if (!account) return;
     if (!textValidation.ok || !deadlineValidation.ok) return;
+    if (isRetrospective && !retrospectiveAck) return;
 
     setPipelineTitle("Registering Public Commitment");
     setPipelineStage("signing");
@@ -171,6 +194,8 @@ export const Workbench: React.FC = () => {
         account,
         registerText,
         registerDeadline,
+        claimKind,
+        retrospectiveAck,
         (report) => {
           setPipelineStatus(report);
           if (report.statusName === "ACCEPTED") {
@@ -253,6 +278,96 @@ export const Workbench: React.FC = () => {
     }
   };
 
+  // Handle Challenge
+  const handleChallenge = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!account) return;
+    if (!challengeUrlValidation.ok || !challengeCid.trim()) return;
+
+    setChallengeModalOpen(false);
+    setPipelineTitle("Submitting Adjudication Challenge");
+    setPipelineStage("signing");
+    setPipelineOpen(true);
+
+    try {
+      setPipelineStage("consensus");
+      const { report } = await challengeResolutionFlow(
+        account,
+        challengeCid.trim(),
+        challengeReason,
+        challengeSourceUrl.trim(),
+        (rep) => {
+          setPipelineStatus(rep);
+          if (rep.statusName === "ACCEPTED") {
+            if (rep.leaderResult === "SUCCESS") {
+              setPipelineStage("complete");
+            } else {
+              setPipelineStage("reverted");
+            }
+          } else if (rep.isMajorityDisagreed) {
+            setPipelineStage("undetermined");
+          }
+        }
+      );
+
+      if (report.leaderResult === "SUCCESS") {
+        setPipelineStage("complete");
+        refreshMyCommitments();
+      } else {
+        setPipelineStage("reverted");
+      }
+    } catch (err: unknown) {
+      setPipelineStage("reverted");
+      setPipelineStatus((prev) => ({
+        txHash: prev?.txHash || "",
+        statusName: "REVERTED",
+        decodedRevert: err instanceof Error ? err.message : String(err),
+      }));
+    }
+  };
+
+  // Handle Finalize
+  const handleFinalize = async (commitmentId: string) => {
+    if (!account) return;
+    setPipelineTitle("Finalizing Resolution");
+    setPipelineStage("signing");
+    setPipelineOpen(true);
+
+    try {
+      setPipelineStage("consensus");
+      const { report } = await finalizeResolutionFlow(
+        account,
+        commitmentId.trim(),
+        (rep) => {
+          setPipelineStatus(rep);
+          if (rep.statusName === "ACCEPTED") {
+            if (rep.leaderResult === "SUCCESS") {
+              setPipelineStage("complete");
+            } else {
+              setPipelineStage("reverted");
+            }
+          } else if (rep.isMajorityDisagreed) {
+            setPipelineStage("undetermined");
+          }
+        }
+      );
+
+      if (report.leaderResult === "SUCCESS") {
+        setPipelineStage("complete");
+        refreshMyCommitments();
+      } else {
+        setPipelineStage("reverted");
+      }
+    } catch (err: unknown) {
+      setPipelineStage("reverted");
+      setPipelineStatus((prev) => ({
+        txHash: prev?.txHash || "",
+        statusName: "REVERTED",
+        decodedRevert: err instanceof Error ? err.message : String(err),
+      }));
+    }
+  };
+
   // Handle Lookup
   const handleLookup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -281,7 +396,7 @@ export const Workbench: React.FC = () => {
           </h1>
 
           <p className="hero-subtitle" style={{ marginTop: "16px" }}>
-            Register promises, discover IDs via snapshot-diff, and resolve commitments against allowlisted public sources.
+            Register prospective promises or historical analysis, adjudicate with multi-element ground truth, and exercise bounded challenge reconsideration.
           </p>
 
           {/* Workbench Tabs using Alwayzz Pill Styling */}
@@ -332,8 +447,46 @@ export const Workbench: React.FC = () => {
                       Register a Public Commitment
                     </h2>
                     <p className="mt-1.5 text-xs sm:text-sm text-[#6b6b6b] leading-relaxed">
-                      Validators will execute multi-node canonical extraction of the subject and action into consensus storage.
+                      Validators execute multi-node canonical extraction of the subject and action, recording temporal authenticity and unverified claim kind in consensus storage.
                     </p>
+
+                    {/* Claim Kind Selector */}
+                    <div className="mt-6">
+                      <label className="block text-xs font-semibold text-[#0a0a0a] mb-2">
+                        Claim Kind & Identity Attribution
+                      </label>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setClaimKind("THIRD_PARTY_REPORT")}
+                          className={`rounded-2xl border p-3.5 text-left transition ${
+                            claimKind === "THIRD_PARTY_REPORT"
+                              ? "border-[#0a0a0a] bg-black/5"
+                              : "border-black/10 bg-white hover:border-black/20"
+                          }`}
+                        >
+                          <div className="font-semibold text-xs text-[#0a0a0a]">Third-Party Report</div>
+                          <p className="mt-1 text-[11px] text-[#6b6b6b] leading-relaxed">
+                            News article, press release, or organizational public announcement.
+                          </p>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setClaimKind("SELF_DECLARED")}
+                          className={`rounded-2xl border p-3.5 text-left transition ${
+                            claimKind === "SELF_DECLARED"
+                              ? "border-[#0a0a0a] bg-black/5"
+                              : "border-black/10 bg-white hover:border-black/20"
+                          }`}
+                        >
+                          <div className="font-semibold text-xs text-[#0a0a0a]">Self-Declared</div>
+                          <p className="mt-1 text-[11px] text-[#6b6b6b] leading-relaxed">
+                            Personal commitment statement. Note: signer identity is unverified on-chain.
+                          </p>
+                        </button>
+                      </div>
+                    </div>
 
                     {/* Text Area */}
                     <div className="mt-6">
@@ -352,7 +505,7 @@ export const Workbench: React.FC = () => {
                         rows={4}
                         value={registerText}
                         onChange={(e) => setRegisterText(e.target.value)}
-                        placeholder="e.g. The United States Apollo 11 mission will land human astronauts on the lunar surface before 1970."
+                        placeholder="e.g. SpaceX will launch the USSF-481 mission for the United States Space Force from Vandenberg on or before 2026-10-16."
                         className="w-full rounded-2xl border border-black/10 bg-white p-4 font-serif text-base text-[#0a0a0a] focus:border-[#0a0a0a] focus:outline-none transition leading-relaxed"
                       />
                       {registerText.length > 0 && !textValidation.ok && (
@@ -360,25 +513,66 @@ export const Workbench: React.FC = () => {
                       )}
                     </div>
 
-                    {/* Deadline Input */}
+                    {/* Deadline Input & Dynamic Temporal Classification */}
                     <div className="mt-6">
-                      <label htmlFor="deadline" className="block text-xs font-semibold text-[#0a0a0a] mb-1.5">
-                        Mandatory Calendar Deadline (YYYY-MM-DD)
-                      </label>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label htmlFor="deadline" className="block text-xs font-semibold text-[#0a0a0a]">
+                          Mandatory Calendar Deadline (YYYY-MM-DD)
+                        </label>
+                        {registerDeadline && deadlineValidation.ok && (
+                          <span
+                            className={`font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                              isRetrospective
+                                ? "bg-stone-100 text-stone-700 border border-stone-200"
+                                : "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                            }`}
+                          >
+                            {isRetrospective ? "Historical Analysis" : "Prospective Track"}
+                          </span>
+                        )}
+                      </div>
                       <div className="relative">
                         <input
                           id="deadline"
                           type="text"
                           value={registerDeadline}
                           onChange={(e) => setRegisterDeadline(e.target.value)}
-                          placeholder="1970-01-01"
+                          placeholder="2026-10-16"
                           className="w-full rounded-2xl border border-black/10 bg-white p-3.5 font-mono text-sm text-[#0a0a0a] focus:border-[#0a0a0a] focus:outline-none transition"
                         />
                         <Calendar size={16} className="absolute right-4 top-4 text-[#6b6b6b]" />
                       </div>
-                      <p className="mt-2 text-xs text-[#6b6b6b] leading-relaxed">
-                        Resolution is refused on-chain by the deterministic clock before this date. Real calendar days and leap years are strictly validated.
-                      </p>
+
+                      {/* Retrospective Warning & Checkbox */}
+                      {isRetrospective && (
+                        <div className="mt-3.5 rounded-2xl border border-amber-300 bg-amber-50/90 p-4 text-xs text-amber-950">
+                          <div className="flex items-center gap-2 font-semibold">
+                            <AlertTriangle size={14} className="text-amber-700" />
+                            <span>Retrospective Deadline Detected</span>
+                          </div>
+                          <p className="mt-1 leading-relaxed">
+                            The entered deadline has already passed on the chain clock. To prevent counterfeit future commitments, the contract requires explicit acknowledgment to catalog this as Historical Analysis.
+                          </p>
+                          <label className="mt-3 flex items-start gap-2.5 cursor-pointer font-medium">
+                            <input
+                              type="checkbox"
+                              checked={retrospectiveAck}
+                              onChange={(e) => setRetrospectiveAck(e.target.checked)}
+                              className="mt-0.5 h-4 w-4 rounded border-gray-300 text-black focus:ring-black"
+                            />
+                            <span>
+                              I acknowledge this deadline is in the past and wish to record a retrospective historical analysis claim.
+                            </span>
+                          </label>
+                        </div>
+                      )}
+
+                      {!isRetrospective && registerDeadline && deadlineValidation.ok && (
+                        <p className="mt-2 text-xs text-emerald-700 leading-relaxed">
+                          Prospective record verified. The smart contract refuses premature resolution attempts until this deadline date arrives.
+                        </p>
+                      )}
+
                       {registerDeadline.length > 0 && !deadlineValidation.ok && (
                         <p className="mt-1.5 text-xs text-rose-600">{deadlineValidation.message}</p>
                       )}
@@ -386,14 +580,18 @@ export const Workbench: React.FC = () => {
 
                     {/* Phrasing Hint */}
                     <div className="mt-6 rounded-2xl border border-black/10 bg-[#fbfbfb] p-4 text-xs text-[#6b6b6b] leading-relaxed">
-                      <strong className="text-[#0a0a0a]">Best practice phrasing:</strong> Be concrete, singular, and verifiable. State who will do what by when (e.g., &ldquo;Mission X will land on the Moon before 1970&rdquo;). Compound clauses may trigger validator disagreement if partially fulfilled.
+                      <strong className="text-[#0a0a0a]">Adjudication structure:</strong> The v3.0.0 contract decomposes this statement into discrete action, condition, and deadline elements. Every element must be grounded in an explicit numbered passage to qualify for a conclusive outcome.
                     </div>
 
                     {/* Submit Button */}
                     <div className="mt-8 flex justify-end">
                       <button
                         type="submit"
-                        disabled={!textValidation.ok || !deadlineValidation.ok}
+                        disabled={
+                          !textValidation.ok ||
+                          !deadlineValidation.ok ||
+                          (isRetrospective && !retrospectiveAck)
+                        }
                         className="primary-button text-sm h-12 px-7"
                       >
                         <FileText size={15} />
@@ -424,23 +622,23 @@ export const Workbench: React.FC = () => {
                 <div className="space-y-6">
                   <div className="workbench-surface p-6 text-xs text-[#6b6b6b]">
                     <h3 className="font-serif text-base font-semibold text-[#0a0a0a]">
-                      Discovery via Snapshot Diff
+                      Temporal Authenticity
                     </h3>
                     <p className="mt-2.5 leading-relaxed">
-                      Smart contract writes on GenLayer do not return values directly to browsers. To capture your fresh commitment ID, the app takes a snapshot of your records before submission, monitors for the accepted transaction, and extracts the newly added record.
+                      Commitments with future deadlines enter the <strong>Accountability Track</strong> and remain permanently OPEN until their calendar deadline matures on the GenVM consensus clock. Historical events are recorded under <strong>Historical Analysis</strong> with mandatory acknowledgment.
                     </p>
                   </div>
 
                   <div className="workbench-surface p-6 text-xs text-[#6b6b6b]">
                     <h3 className="font-serif text-base font-semibold text-[#0a0a0a]">
-                      Registration Guardrails
+                      Consensus Contract Address
                     </h3>
-                    <ul className="mt-3.5 space-y-2.5 list-disc pl-4 leading-relaxed">
-                      <li>Text length: 1 to 400 characters after stripping whitespace.</li>
-                      <li>Pure ASCII characters only.</li>
-                      <li>Prompt injection protection: wrapped in &lt;UNTRUSTED_TEXT&gt; tags.</li>
-                      <li>Multi-validator agreement on extracted predicate via <code>strict_eq</code>.</li>
-                    </ul>
+                    <code className="mt-2 block font-mono text-[11px] text-[#0a0a0a] bg-black/5 p-2 rounded break-all">
+                      {CONTRACT_ADDRESS}
+                    </code>
+                    <p className="mt-2 text-[11px] text-[#6b6b6b]">
+                      Verified source on Studionet (Chain ID 61999).
+                    </p>
                   </div>
                 </div>
               </div>
@@ -456,7 +654,7 @@ export const Workbench: React.FC = () => {
                       Resolve an Open Commitment
                     </h2>
                     <p className="mt-1.5 text-xs sm:text-sm text-[#6b6b6b] leading-relaxed">
-                      Provide an allowlisted public source URL. The contract will fetch the page directly and verify a verbatim quote through consensus.
+                      Provide an allowlisted public source URL. The contract selects highest-density windows, segments text into numbered passages, and adjudicates all statement elements through comparative consensus.
                     </p>
 
                     {/* Target ID */}
@@ -469,7 +667,7 @@ export const Workbench: React.FC = () => {
                         type="text"
                         value={resolveCommitmentId}
                         onChange={(e) => setResolveCommitmentId(e.target.value)}
-                        placeholder="e.g. 1fe69a47c557"
+                        placeholder="e.g. 80e4e5b412bf"
                         className="w-full rounded-2xl border border-black/10 bg-white p-3.5 font-mono text-sm text-[#0a0a0a] focus:border-[#0a0a0a] focus:outline-none transition"
                       />
                     </div>
@@ -513,10 +711,10 @@ export const Workbench: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* 6,000 char note */}
-                      <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50/80 p-4 text-xs text-amber-950 leading-relaxed">
-                        <strong className="font-semibold">Truncation Limit ({SOURCE_TRUNCATION_LIMIT.toLocaleString()} chars):</strong>{" "}
-                        The contract fetches and evaluates only the first 6,000 characters of the cited web page. If evidence details appear deeper down, validators will agree on <code>NOMATCH</code> (source does not match), leaving the commitment open.
+                      {/* Window Selection & Budget Note */}
+                      <div className="mt-4 rounded-2xl border border-black/10 bg-[#fafafa] p-4 text-xs text-[#6b6b6b] leading-relaxed">
+                        <strong className="text-[#0a0a0a]">Deterministic Window Selection:</strong>{" "}
+                        The contract inspects up to 12,000 characters across overlapping 3,000-character windows scored by relevance to the commitment statement. Every cited segment generates a SHA-256 fingerprint anchored to the transaction receipt.
                       </div>
                     </div>
 
@@ -538,9 +736,16 @@ export const Workbench: React.FC = () => {
                     <div className="mt-8">
                       <div className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-emerald-800">
                         <CheckCircle2 size={15} />
-                        <span>Resolved Commitment Sealed</span>
+                        <span>Resolution Record Written</span>
                       </div>
-                      <CommitmentCard commitment={resolvedRecord} />
+                      <CommitmentCard
+                        commitment={resolvedRecord}
+                        onChallengeClick={(id) => {
+                          setChallengeCid(id);
+                          setChallengeModalOpen(true);
+                        }}
+                        onFinalizeClick={handleFinalize}
+                      />
                     </div>
                   )}
                 </div>
@@ -600,7 +805,7 @@ export const Workbench: React.FC = () => {
                       type="text"
                       value={lookupId}
                       onChange={(e) => setLookupId(e.target.value)}
-                      placeholder="Enter 12-hex commitment ID (e.g. 1fe69a47c557)"
+                      placeholder="Enter 12-hex commitment ID (e.g. 80e4e5b412bf)"
                       className="flex-1 rounded-2xl border border-black/10 bg-white p-3.5 font-mono text-sm text-[#0a0a0a] focus:border-[#0a0a0a] focus:outline-none transition"
                     />
                     <button
@@ -632,6 +837,11 @@ export const Workbench: React.FC = () => {
                                 setResolveCommitmentId(id);
                                 setTab("resolve");
                               }}
+                              onChallengeClick={(id) => {
+                                setChallengeCid(id);
+                                setChallengeModalOpen(true);
+                              }}
+                              onFinalizeClick={handleFinalize}
                             />
                           </div>
                         )
@@ -682,6 +892,11 @@ export const Workbench: React.FC = () => {
                               setResolveCommitmentId(id);
                               setTab("resolve");
                             }}
+                            onChallengeClick={(id) => {
+                              setChallengeCid(id);
+                              setChallengeModalOpen(true);
+                            }}
+                            onFinalizeClick={handleFinalize}
                           />
                         </div>
                       ))
@@ -696,14 +911,14 @@ export const Workbench: React.FC = () => {
               <div className="space-y-6">
                 <div className="workbench-surface p-7 text-xs text-[#6b6b6b] reveal-on-scroll" style={{ "--stagger": 0 } as React.CSSProperties}>
                   <h2 className="font-serif text-2xl font-semibold text-[#0a0a0a]">
-                    Real Studionet Consensus Cases
+                    Verified On-Chain Cases
                   </h2>
                   <p className="mt-1.5 leading-relaxed text-xs sm:text-sm">
-                    These three real scenarios were executed on GenLayer Studionet against contract{" "}
+                    Verified scenarios executed on GenLayer Studionet against contract{" "}
                     <code className="font-mono text-xs text-[#0a0a0a] font-medium">
-                      0x3155c7c80f4334968d61E1b79f74EB864CF7cb08
+                      {CONTRACT_ADDRESS}
                     </code>
-                    . You can load their parameters directly into the workbench forms.
+                    .
                   </p>
                 </div>
 
@@ -719,8 +934,37 @@ export const Workbench: React.FC = () => {
                   </div>
                 )}
 
-                {examplesData.caseA && (
+                {/* Case P1: Prospective */}
+                {examplesData.caseP1 && (
                   <div className="workbench-surface p-7 sm:p-8 reveal-on-scroll" style={{ "--stagger": 1 } as React.CSSProperties}>
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-black/10 pb-4">
+                      <span className="font-sans text-xs font-bold uppercase tracking-wider text-emerald-800">
+                        Case P1: Prospective Accountability Track (OPEN until 2026-10-16)
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setRegisterText(examplesData.caseP1!.raw_text);
+                          setRegisterDeadline(examplesData.caseP1!.deadline_hint);
+                          setTab("register");
+                        }}
+                        className="text-xs text-[#0a0a0a] underline font-medium"
+                      >
+                        Load into Register form
+                      </button>
+                    </div>
+                    <p className="mt-3 text-xs text-[#6b6b6b]">
+                      Authentic future spaceflight launch recorded in advance. Premature resolution is refused on-chain by the GenVM clock until 2026-10-16.
+                    </p>
+                    <div className="mt-5">
+                      <CommitmentCard commitment={examplesData.caseP1} showActions={false} />
+                    </div>
+                  </div>
+                )}
+
+                {/* Case A: KEPT */}
+                {examplesData.caseA && (
+                  <div className="workbench-surface p-7 sm:p-8 reveal-on-scroll" style={{ "--stagger": 2 } as React.CSSProperties}>
                     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-black/10 pb-4">
                       <span className="font-sans text-xs font-bold uppercase tracking-wider text-emerald-800">
                         Case A: Paraphrased Source Fulfillment (KEPT)
@@ -743,8 +987,9 @@ export const Workbench: React.FC = () => {
                   </div>
                 )}
 
+                {/* Case B: BROKEN */}
                 {examplesData.caseB && (
-                  <div className="workbench-surface p-7 sm:p-8 reveal-on-scroll" style={{ "--stagger": 2 } as React.CSSProperties}>
+                  <div className="workbench-surface p-7 sm:p-8 reveal-on-scroll" style={{ "--stagger": 3 } as React.CSSProperties}>
                     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-black/10 pb-4">
                       <span className="font-sans text-xs font-bold uppercase tracking-wider text-rose-800">
                         Case B: Grounded Verbatim Evidence of Non-Fulfillment (BROKEN)
@@ -767,26 +1012,27 @@ export const Workbench: React.FC = () => {
                   </div>
                 )}
 
+                {/* Case C: Condition Omitted */}
                 {examplesData.caseC && (
-                  <div className="workbench-surface p-7 sm:p-8 reveal-on-scroll" style={{ "--stagger": 3 } as React.CSSProperties}>
+                  <div className="workbench-surface p-7 sm:p-8 reveal-on-scroll" style={{ "--stagger": 4 } as React.CSSProperties}>
                     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-black/10 pb-4">
                       <span className="font-sans text-xs font-bold uppercase tracking-wider text-amber-800">
-                        Case C: Distractor Rejection (NOMATCH Revert, Commitment Stays OPEN)
+                        Case C: Mandatory Condition Omitted in Summarization (BROKEN)
                       </span>
                       <button
                         type="button"
                         onClick={() => {
-                          setResolveCommitmentId(examplesData.caseC!.commitment_id);
-                          setResolveSourceUrl("https://en.wikipedia.org/wiki/Falcon_9");
-                          setTab("resolve");
+                          setRegisterText(examplesData.caseC!.raw_text);
+                          setRegisterDeadline(examplesData.caseC!.deadline_hint);
+                          setTab("register");
                         }}
                         className="text-xs text-[#0a0a0a] underline font-medium"
                       >
-                        Load into Resolve form
+                        Load into Register form
                       </button>
                     </div>
                     <p className="mt-3 text-xs text-[#6b6b6b]">
-                      Attempting to resolve this commitment (NASA James Webb Telescope) with the Falcon 9 Wikipedia page reverted on-chain with &ldquo;source does not match this commitment&rdquo; and preserved the commitment in the OPEN state.
+                      Statement promised &ldquo;all three of its astronauts on the lunar surface&rdquo;. The element mapper verified Action satisfied (Armstrong & Aldrin), but Condition unfulfilled (Collins remained in orbit).
                     </p>
                     <div className="mt-5">
                       <CommitmentCard commitment={examplesData.caseC} showActions={false} />
@@ -814,6 +1060,99 @@ export const Workbench: React.FC = () => {
           setPipelineOpen(false);
         }}
       />
+
+      {/* Challenge Resolution Modal */}
+      {challengeModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-lg rounded-3xl border border-black/10 bg-white p-6 sm:p-8 shadow-2xl text-left">
+            <div className="flex items-center justify-between border-b border-black/10 pb-4">
+              <div className="flex items-center gap-2">
+                <Gavel size={18} className="text-[#0a0a0a]" />
+                <h3 className="font-serif text-xl font-semibold text-[#0a0a0a]">
+                  Challenge Provisional Decision
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setChallengeModalOpen(false)}
+                className="rounded-full p-1 text-[#6b6b6b] hover:bg-black/5 hover:text-[#0a0a0a] transition"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleChallenge} className="mt-5 space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-[#0a0a0a] mb-1">
+                  Commitment ID
+                </label>
+                <input
+                  type="text"
+                  value={challengeCid}
+                  disabled
+                  className="w-full rounded-xl border border-black/10 bg-black/5 p-3 font-mono text-xs text-[#0a0a0a]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#0a0a0a] mb-1">
+                  Challenge Reason
+                </label>
+                <select
+                  value={challengeReason}
+                  onChange={(e) => setChallengeReason(e.target.value as ChallengeReason)}
+                  className="w-full rounded-xl border border-black/10 bg-white p-3 text-xs text-[#0a0a0a] focus:border-[#0a0a0a] focus:outline-none"
+                >
+                  <option value="UNSUPPORTED_CLASSIFICATION">
+                    UNSUPPORTED_CLASSIFICATION (Strict Grounding Re-review)
+                  </option>
+                  <option value="CONFLICTING_EVIDENCE">
+                    CONFLICTING_EVIDENCE (New Source Document)
+                  </option>
+                </select>
+                <p className="mt-1 text-[11px] text-[#6b6b6b]">
+                  {challengeReason === "UNSUPPORTED_CLASSIFICATION"
+                    ? "Requires every element to cite an explicit grounded segment; ungrounded elements result in WITHDRAWN status."
+                    : "Presents alternative documented evidence from an allowlisted domain."}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#0a0a0a] mb-1">
+                  Source URL
+                </label>
+                <input
+                  type="text"
+                  value={challengeSourceUrl}
+                  onChange={(e) => setChallengeSourceUrl(e.target.value)}
+                  placeholder="https://en.wikipedia.org/wiki/..."
+                  className="w-full rounded-xl border border-black/10 bg-white p-3 font-mono text-xs text-[#0a0a0a] focus:border-[#0a0a0a] focus:outline-none"
+                />
+                {challengeSourceUrl.length > 0 && !challengeUrlValidation.ok && (
+                  <p className="mt-1 text-[11px] text-rose-600">{challengeUrlValidation.message}</p>
+                )}
+              </div>
+
+              <div className="pt-3 flex justify-end gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setChallengeModalOpen(false)}
+                  className="rounded-full border border-black/10 px-5 py-2.5 text-xs font-semibold text-[#6b6b6b] hover:bg-black/5 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={!challengeUrlValidation.ok || !challengeSourceUrl.trim()}
+                  className="primary-button text-xs h-10 px-6"
+                >
+                  Broadcast Challenge
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

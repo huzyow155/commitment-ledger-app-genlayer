@@ -154,6 +154,8 @@ describe("Validators Unit Tests", () => {
 describe("Outcome & Status Parser Unit Tests", () => {
   it("parses exact tokens for status", () => {
     expect(parseCommitmentStatus("OPEN")).toBe("OPEN");
+    expect(parseCommitmentStatus("PROVISIONAL")).toBe("PROVISIONAL");
+    expect(parseCommitmentStatus("FINAL")).toBe("FINAL");
     expect(parseCommitmentStatus("RESOLVED")).toBe("RESOLVED");
     expect(parseCommitmentStatus("OPEN_SOMETHING")).toBe("UNKNOWN");
     expect(parseCommitmentStatus(123)).toBe("UNKNOWN");

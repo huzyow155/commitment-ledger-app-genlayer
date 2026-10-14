@@ -43,6 +43,8 @@ async function main() {
         account,
         testStatement,
         deadline,
+        "THIRD_PARTY_REPORT",
+        true,
         (status) => {
           console.log(`  -> Status update: ${status.statusName} (Leader: ${status.leaderResult || "pending"})`);
         }
@@ -57,7 +59,7 @@ async function main() {
   }
 
   const { txHash: regTx, commitmentId } = registerResult;
-  console.log(`✓ Commitment registered successfully!`);
+  console.log(`Commitment registered successfully!`);
   console.log(`  Commitment ID: ${commitmentId}`);
   console.log(`  Register Tx:   ${regTx}`);
 
@@ -71,7 +73,7 @@ async function main() {
   if (!initialRead.ok || !initialRead.data) {
     throw new Error(`Failed to read back newly created commitment: ${initialRead.error}`);
   }
-  console.log(`✓ Record read verified:`);
+  console.log(`Record read verified:`);
   console.log(`  Status:    ${initialRead.data.status}`);
   console.log(`  Subject:   "${initialRead.data.subject}"`);
   console.log(`  Action:    "${initialRead.data.action}"`);
@@ -108,7 +110,7 @@ async function main() {
   }
 
   const { txHash: resTx, report: resReport } = resolveResult;
-  console.log(`✓ Resolution transaction processed:`);
+  console.log(`Resolution transaction processed:`);
   console.log(`  Resolve Tx:    ${resTx}`);
   console.log(`  Status Name:   ${resReport.statusName}`);
   console.log(`  Leader Result: ${resReport.leaderResult}`);
@@ -123,27 +125,23 @@ async function main() {
   if (!resolvedRead.ok || !resolvedRead.data) {
     throw new Error(`Failed to read resolved commitment: ${resolvedRead.error}`);
   }
-  console.log(`✓ Resolved record read verified:`);
+  console.log(`Resolved record read verified:`);
   console.log(`  Status:    ${resolvedRead.data.status}`);
   console.log(`  Outcome:   ${resolvedRead.data.outcome}`);
-  console.log(`  Quote:     "${resolvedRead.data.resolution_quote}"`);
 
-  if (resolvedRead.data.status !== "RESOLVED") {
-    throw new Error(`Expected status RESOLVED, got ${resolvedRead.data.status}`);
-  }
-  if (!resolvedRead.data.resolution_quote || resolvedRead.data.resolution_quote.length < 12) {
-    throw new Error(`Quote missing or under 12 characters: "${resolvedRead.data.resolution_quote}"`);
+  if (resolvedRead.data.status !== "PROVISIONAL" && resolvedRead.data.status !== "FINAL") {
+    throw new Error(`Expected status PROVISIONAL or FINAL, got ${resolvedRead.data.status}`);
   }
   evidenceReport.flow.finalRecord = resolvedRead.data;
 
   // STEP 4: ON-CHAIN NEGATIVE TESTS THROUGH SAME SERVICE
   console.log(`\n[4/4] Executing on-chain negative rejection tests through contractService...`);
 
-  // Negative 1: Non-allowlisted domain (GitHub) on OPEN commitment 4efe7cbd0772
+  // Negative 1: Non-allowlisted domain (GitHub) on OPEN commitment 3d2cc5901dad
   console.log(`  -> Submitting non-allowlisted domain on open commitment...`);
   const neg1 = await submitResolutionFlow(
     account,
-    "4efe7cbd0772",
+    "3d2cc5901dad",
     "https://github.com/nasa/webb"
   );
   console.log(`     Tx Hash: ${neg1.txHash}`);
@@ -155,8 +153,8 @@ async function main() {
     revertPayload: neg1.report.decodedRevert,
   };
 
-  // Negative 2: Second resolution on already resolved commitment
-  console.log(`  -> Submitting second resolution on already resolved commitment...`);
+  // Negative 2: Second resolution on already provisional commitment
+  console.log(`  -> Submitting second resolution on already resolved/provisional commitment...`);
   const neg2 = await submitResolutionFlow(
     account,
     commitmentId,
